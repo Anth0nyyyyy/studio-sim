@@ -17,7 +17,7 @@ export interface RoomDef {
 }
 export interface FurnDef {
   id: string; name: string; cost: number; rooms: string[];
-  use?: 'work' | NeedKind; comfort?: number; boost?: number; duration?: number; capacity?: number;
+  use?: 'work' | NeedKind; comfort?: number; boost?: number; duration?: number; capacity?: number; players?: number; upkeep?: number;
 }
 
 export interface Room { id: number; type: string; x: number; y: number; w: number; h: number; cost: number }
@@ -60,7 +60,15 @@ export interface ProjectSpec {
   audience: string; size: SizeId; platforms: string[]; engine: number;
   /** Multiplicateur de prix : 0.7 bas, 1 normal, 1.3 élevé */
   price: number;
+  kind: ProjectKind;
+  /** Jeu de base pour une suite, une extension ou un remaster */
+  base: number | null;
+  model: BusinessModel;
 }
+export type ProjectKind = 'new' | 'sequel' | 'addon' | 'remaster';
+export type BusinessModel = 'boxed' | 'mmo' | 'f2p';
+export interface LiveGame { gameId: number; players: number; peak: number; satisfaction: number; contentAge: number; revenue: number; closed: boolean }
+export interface PatchJob { gameId: number; amount: number; progress: number }
 export interface Project extends ProjectSpec {
   cost: number;
   /** 0..2 = phases de contenu, 3 = polissage */
@@ -84,6 +92,9 @@ export interface Game extends ProjectSpec {
   /** Ventes physiques manquées faute de stock */
   lost: number;
   digital: number;
+  /** Bugs restants à la sortie */
+  bugs: number;
+  patched: boolean;
 }
 
 export type ContractKind = 'dev' | 'graph' | 'son' | 'qa';
@@ -164,4 +175,9 @@ export interface GameState {
   loans: Loan[];
   /** Parts détenues dans les studios concurrents, en % */
   shares: Record<string, number>;
+  live: LiveGame[];
+  patch: PatchJob | null;
+  /** Points de support produits cette semaine, et taux de couverture de la semaine passée */
+  supportWeek: number;
+  supportRatio: number;
 }

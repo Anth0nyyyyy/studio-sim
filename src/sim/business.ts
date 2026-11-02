@@ -59,6 +59,14 @@ export function initialStock(s: GameState, g: Game) {
 /** Une semaine de ventes pour un jeu du joueur. */
 export function sellWeek(s: GameState, g: Game) {
   if (g.si >= g.sched.length) { g.weekly = 0; return; }
+  if (g.model === 'f2p') {
+    const u = Math.round(g.sched[g.si++] * 2.5);
+    g.units += u; g.digital += u; g.weekly = u;
+    s.market.yearUnits.player = (s.market.yearUnits.player ?? 0) + u;
+    addFans(s, g.genre, u * 0.02 * (g.score / 10));
+    if (g.si === g.sched.length) log(s, `${g.name} : fin de la campagne de lancement (${g.units.toLocaleString('fr-FR')} téléchargements).`);
+    return;
+  }
   const base = g.sched[g.si++] * elasticity(g.price, g.score);
   const d = digitalShare(s);
   const dig = Math.round(base * d);

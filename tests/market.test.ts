@@ -52,7 +52,7 @@ describe('marché', () => {
     on('awards', p => { got = p.results.length; });
     s.games.push({ id: 999, name: 'Mon Hit', topic: 'Médiéval', genre: 'RPG', sub: null, audience: 'all', size: 'S', platforms: ['pc'], engine: 1,
       score: 10, reviews: [10, 10, 10, 10], quality: 1, units: 50000, revenue: 0, cost: 0, sched: [], si: 0, releasedAt: s.time, weekly: 0,
-      price: 1, stock: 0, collector: 0, auto: false, lost: 0, digital: 0 });
+      price: 1, stock: 0, collector: 0, auto: false, lost: 0, digital: 0, bugs: 0, patched: false, kind: 'new', base: null, model: 'boxed' });
     s.market.yearUnits.player = 50000;
     const m = s.money;
     const res = runAwards(s, 1980);

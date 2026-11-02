@@ -1,9 +1,10 @@
 import { AUDIENCES, GENRE, GENRES, PHASES, PLATFORM, REVIEWERS, SIZES, TOPICS, VERDICTS } from '../core/data';
-import type { Game, GameState, ProjectSpec, SizeId } from '../core/types';
+import type { BusinessModel, Game, GameState, ProjectKind, ProjectSpec, SizeId } from '../core/types';
 import { esc, money } from '../core/util';
 import { engineReady, maxPlatforms, sizeUnlocked } from '../sim/research';
 import { COLLECTOR_COST, PRICE_LEVELS, capacity, digitalShare, orderStock, physicalForecast, prodCost, stored, unitPrice } from '../sim/business';
 import { toast } from './ui';
+import { F2P_ARPU, KIND_LABEL, MODEL_LABEL, SUBSCRIPTION, canPatch, eligibleBases, livePlayers, serverCapacity, serverUpkeep, startPatch } from '../sim/live';
 import {
   COMBO_LABEL, audienceFit, availablePlatforms, importanceLabel, phaseTarget,
   projectCost, release, setSliders, startProject, validateSpec,
@@ -62,7 +63,7 @@ export function renderProjectCard(s: GameState, openSlidersFn: () => void) {
 export function openWizard(s: GameState, onStart: () => void) {
   const plats = availablePlatforms(s);
   const ready = s.engines.filter(e => engineReady(s, e));
-  const spec: ProjectSpec = { name: randomName(), topic: '', genre: '', sub: null, audience: 'all', size: 'S', platforms: [plats[0].id], engine: ready[ready.length - 1]?.id ?? 0, price: 1 };
+  const spec: ProjectSpec = { name: randomName(), topic: '', genre: '', sub: null, audience: 'all', size: 'S', platforms: [plats[0].id], engine: ready[ready.length - 1]?.id ?? 0, price: 1, kind: 'new', base: null, model: 'boxed' };
 
   const chip = (k: string, v: string, on: boolean, label: string, extra = '', disabled = false) =>
     `<button class="chip" data-k="${k}" data-v="${esc(v)}" aria-pressed="${on}" ${disabled ? 'disabled' : ''}>${label}${extra ? `<em>${extra}</em>` : ''}</button>`;
@@ -75,6 +76,10 @@ export function openWizard(s: GameState, onStart: () => void) {
     return `<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="wz-t">
       <header><h3 id="wz-t">Nouveau jeu</h3><button data-close>Annuler</button></header>
       <label class="field"><span>Titre</span><input type="text" id="wz-name" maxlength="40" value="${esc(spec.name)}"></label>
+      <div class="field"><span>Type de projet</span><div class="chips">${(Object.keys(KIND_LABEL) as ProjectKind[]).map(k =>
+        chip('kind', k, spec.kind === k, KIND_LABEL[k], k === 'new' ? '' : `${eligibleBases(s, k).length} jeu(x) possible(s)`, k !== 'new' && !eligibleBases(s, k).length)).join('')}</div></div>
+      ${spec.kind !== 'new' ? `<div class="field"><span>Jeu de base</span><div class="chips">${eligibleBases(s, spec.kind).map(g =>
+        chip('base', String(g.id), spec.base === g.id, esc(g.name), `${g.score.toFixed(1)}/10`)).join('')}</div></div>` : ''}
       <div class="field"><span>Sujet</span><div class="chips">${TOPICS.filter(t => s.topics.includes(t.name)).map(t => chip('topic', t.name, spec.topic === t.name, t.name, s.market.trend.topic === t.name ? 'tendance' : '')).join('')}</div></div>
       <div class="field"><span>Genre</span><div class="chips">${GENRES.map(g => {
         const c = spec.topic ? s.combos[`${spec.topic}|${g.id}`] : undefined;
@@ -88,6 +93,10 @@ export function openWizard(s: GameState, onStart: () => void) {
         const unlocked = sizeUnlocked(s, k);
         return chip('size', k, spec.size === k, z.name, unlocked ? `${money(z.cost)} · ${z.minStaff}+ employés` : 'recherche requise', !unlocked || s.employees.length < z.minStaff);
       }).join('')}</div></div>
+      <div class="field"><span>Modèle économique</span><div class="chips">${(Object.keys(MODEL_LABEL) as BusinessModel[]).map(m =>
+        chip('model', m, spec.model === m, MODEL_LABEL[m], m === 'mmo' ? (s.done.online ? 'abonnement mensuel' : 'recherche requise') : m === 'f2p' ? (s.done.f2p ? 'gratuit + achats' : 'recherche requise') : '',
+          (m === 'mmo' && !s.done.online) || (m === 'f2p' && !s.done.f2p) || (spec.kind !== 'new' && spec.kind !== 'sequel' && m !== 'boxed'))).join('')}</div>
+        ${spec.model !== 'boxed' ? `<div class="hint">Prévoyez une salle serveurs avec des baies (20 000 joueurs chacune) et un support client.</div>` : ''}</div>
       <div class="field"><span>Prix de vente</span><div class="chips">${PRICE_LEVELS.map(p => chip('price', String(p.value), spec.price === p.value, p.label, `${(SIZES[spec.size].price * p.value).toFixed(2)} $`)).join('')}</div></div>
       <div class="field"><span>Moteur</span><div class="chips">${ready.map(e => chip('engine', String(e.id), spec.engine === e.id, esc(e.name), `tech ${e.tech.toFixed(1)}`)).join('')}</div></div>
       <div class="field"><span>Plateformes (jusqu’à ${maxPlatforms(s)})</span><div class="chips">${plats.map(p =>
@@ -106,8 +115,19 @@ export function openWizard(s: GameState, onStart: () => void) {
     if (c) {
       spec.name = ($('wz-name') as HTMLInputElement).value;
       const k = c.dataset.k!, v = c.dataset.v!;
-      if (k === 'topic') spec.topic = v;
-      if (k === 'genre') { spec.genre = v; if (spec.sub === v) spec.sub = null; }
+      if (k === 'kind') {
+        spec.kind = v as ProjectKind; spec.base = null;
+        if (spec.kind !== 'new' && spec.kind !== 'sequel') spec.model = 'boxed';
+      }
+      if (k === 'base') {
+        const b = s.games.find(g => g.id === +v)!;
+        spec.base = b.id; spec.topic = b.topic; spec.genre = b.genre; spec.sub = b.sub; spec.audience = b.audience;
+        spec.name = spec.kind === 'sequel' ? `${b.name} 2` : spec.kind === 'addon' ? `${b.name} : Extension` : `${b.name} Remaster`;
+        if (spec.kind === 'sequel') spec.model = b.model;
+      }
+      if (k === 'model') spec.model = v as BusinessModel;
+      if (k === 'topic' && spec.kind === 'new') spec.topic = v;
+      if (k === 'genre' && spec.kind === 'new') { spec.genre = v; if (spec.sub === v) spec.sub = null; }
       if (k === 'sub') spec.sub = v || null;
       if (k === 'audience') spec.audience = v;
       if (k === 'size') spec.size = v as SizeId;
@@ -176,12 +196,13 @@ export function openReview(g: Game, notes: string[], insight: string) {
 /* ---------- Catalogue ---------- */
 export function openGames(s: GameState) {
   const render = () => {
-    const onSale = s.games.filter(g => g.si < g.sched.length);
+    const onSale = s.games.filter(g => g.si < g.sched.length && g.model !== 'f2p');
     const used = stored(s), cap = capacity(s);
     modal().innerHTML = `<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="gm-t" style="max-width:980px">
     <header><h3 id="gm-t">Vos jeux</h3><button data-close>Fermer</button></header>
     <div class="sum"><span>Entrepôt : <b>${used.toLocaleString('fr-FR')}</b> / ${cap.toLocaleString('fr-FR')} copies</span>
       <span>Coût de fabrication : ${prodCost(s).toFixed(2)} $ (collector ${COLLECTOR_COST} $)</span><span>Part du digital : ${Math.round(digitalShare(s) * 100)} %</span></div>
+    ${liveSection()}
     ${onSale.length ? `<h4 class="h4">En vente</h4><div class="elist">${onSale.map(g => {
       const need = Math.round(physicalForecast(s, g, 4));
       return `<div class="ecard">
@@ -194,6 +215,7 @@ export function openGames(s: GameState) {
           <button data-order="${g.id}:5000">+5 000</button><button data-order="${g.id}:20000">+20 000</button>
           <button data-coll="${g.id}">+1 000 collector</button>
           <label class="lic"><input type="checkbox" data-auto="${g.id}" ${g.auto ? 'checked' : ''}> Réassort auto</label>
+          ${patchButton(g)}
         </div></div>`;
     }).join('')}</div>` : ''}
     ${s.games.length ? `<h4 class="h4">Catalogue</h4><div class="tablewrap"><table class="games"><thead><tr>
@@ -209,6 +231,28 @@ export function openGames(s: GameState) {
   </div>`;
   };
   const find = (id: string) => s.games.find(g => g.id === +id)!;
+  function patchButton(g: Game) {
+    if (s.patch?.gameId === g.id) return `<small>Patch en cours : ${Math.floor(s.patch.progress)}/${s.patch.amount}</small>`;
+    return canPatch(g) ? `<button data-patch="${g.id}" ${s.patch ? 'disabled' : ''}>Patcher (${g.bugs} bugs)</button>` : g.patched ? '<small>Patché</small>' : '';
+  }
+  function liveSection() {
+    const lives = s.live.filter(l => !l.closed);
+    if (!lives.length) return '';
+    const cap = serverCapacity(s), players = livePlayers(s);
+    return `<h4 class="h4">Jeux en ligne</h4>
+      <div class="sum"><span>Joueurs : <b>${players.toLocaleString('fr-FR')}</b> / capacité ${cap.toLocaleString('fr-FR')}</span>
+        <span>Serveurs : ${money(serverUpkeep(s))}/mois</span><span>Support : ${Math.round(s.supportRatio * 100)} %</span></div>
+      <div class="elist">${lives.map(l => {
+        const g = s.games.find(o => o.id === l.gameId)!;
+        const monthly = g.model === 'mmo' ? l.players * SUBSCRIPTION : l.players * F2P_ARPU * (l.satisfaction / 80);
+        return `<div class="ecard"><div class="rh"><b>${esc(g.name)}</b><small>${MODEL_LABEL[g.model]}</small></div>
+          <div class="efeat"><span><em>Joueurs</em>${l.players.toLocaleString('fr-FR')}</span><span><em>Pic</em>${l.peak.toLocaleString('fr-FR')}</span>
+            <span><em>Revenu/mois</em>${money(monthly)}</span><span><em>Total</em>${money(l.revenue)}</span>
+            <span><em>Contenu</em>${l.contentAge > 24 ? `vieillissant (${l.contentAge} sem.)` : `${l.contentAge} sem.`}</span></div>
+          <div class="bar"><span>Satisfaction</span><i><b style="width:${l.satisfaction}%;background:${l.satisfaction > 60 ? 'var(--good)' : l.satisfaction > 35 ? 'var(--accent)' : 'var(--bad)'}"></b></i><em>${Math.round(l.satisfaction)}</em></div>
+          <div class="row">${patchButton(g)}<small>Une extension relance l’intérêt des joueurs.</small></div></div>`;
+      }).join('')}</div>`;
+  }
   render();
   modal().onchange = ev => {
     const t = ev.target as HTMLInputElement;
@@ -221,6 +265,8 @@ export function openGames(s: GameState) {
     if (pr) { const [id, v] = pr.dataset.price!.split(':'); find(id).price = +v; render(); return; }
     const or = t.closest<HTMLElement>('[data-order]');
     if (or) { const [id, q] = or.dataset.order!.split(':'); const err = orderStock(s, find(id), +q); if (err) toast(err, true); render(); return; }
+    const pa = t.closest<HTMLElement>('[data-patch]');
+    if (pa) { const err = startPatch(s, +pa.dataset.patch!); if (err) toast(err, true); render(); return; }
     const co = t.closest<HTMLElement>('[data-coll]');
     if (co) { const err = orderStock(s, find(co.dataset.coll!), 1000, true); if (err) toast(err, true); render(); }
   };

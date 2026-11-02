@@ -133,6 +133,8 @@ function overviewPanel(s: GameState) {
       <span>Salles</span><span>${s.rooms.length}</span>
     </div>
     ${unassigned.length ? `<div class="sub" style="color:var(--accent)">${unassigned.length} employé(s) sans poste : construisez une salle et ajoutez des postes de travail.</div>` : ''}
+    ${s.supportRatio < 0.8 ? `<div class="sub" style="color:var(--bad)">Support client débordé (${Math.round(s.supportRatio * 100)} %) : construisez une salle Support client.</div>` : ''}
+    ${s.patch ? `<div class="sub">Patch en cours : ${Math.floor(s.patch.progress)}/${s.patch.amount} pts (devs et QA)</div>` : ''}
     ${missing.length ? `<div class="sub" style="color:var(--bad)">${missing.length} employé(s) ne trouvent pas de quoi se reposer, manger ou aller aux toilettes.</div>` : ''}
     <div class="sub">Production cumulée</div><div class="kv">${rows}</div>
     <div class="list">${s.employees.map(e => `<button data-emp="${e.id}"><span>${esc(e.name)}</span><small>${SKILL_LABEL[e.spec]}</small></button>`).join('')}</div>`;

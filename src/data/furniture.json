@@ -10,7 +10,8 @@
    "qa",
    "rd",
    "mkt",
-   "hw"
+   "hw",
+   "support"
   ],
   "use": "work"
  },
@@ -34,7 +35,8 @@
    "qa",
    "rd",
    "mkt",
-   "hw"
+   "hw",
+   "support"
   ],
   "comfort": 2,
   "boost": 0.05
@@ -109,5 +111,15 @@
    "stock"
   ],
   "capacity": 4000
+ },
+ {
+  "id": "rack",
+  "name": "Baie de serveurs",
+  "cost": 25000,
+  "rooms": [
+   "server"
+  ],
+  "players": 20000,
+  "upkeep": 800
  }
 ]

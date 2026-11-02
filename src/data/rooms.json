@@ -137,5 +137,29 @@
    3,
    3
   ]
+ },
+ {
+  "id": "support",
+  "name": "Support client",
+  "color": "#d9e4c8",
+  "costTile": 200,
+  "min": [
+   3,
+   3
+  ],
+  "skills": [
+   "marketing"
+  ],
+  "out": "support"
+ },
+ {
+  "id": "server",
+  "name": "Salle serveurs",
+  "color": "#b9c4cf",
+  "costTile": 350,
+  "min": [
+   3,
+   3
+  ]
  }
 ]

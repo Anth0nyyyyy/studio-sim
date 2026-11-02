@@ -8,6 +8,7 @@ import { marketWeek } from './market';
 import { book } from '../core/ledger';
 import { monthlyLicenses } from './research';
 import { businessMonth, businessWeek } from './business';
+import { liveMonthly, liveWeekly } from './live';
 
 export const LOT_RENT = 3000;
 export const CANDIDATES = 6;
@@ -30,6 +31,7 @@ export function tick(s: GameState, dt: number) {
     log(s, `Salaires et loyer payés : ${money(c)}.`);
     monthlyLicenses(s);
     businessMonth(s);
+    liveMonthly(s);
   }
   const w = weekIndex(s.time);
   if (w > s.lastWeek) {
@@ -37,6 +39,7 @@ export function tick(s: GameState, dt: number) {
     weeklySales(s);
     marketWeek(s);
     businessWeek(s);
+    liveWeekly(s);
     s.candidates.splice(0, 3);
     while (s.candidates.length < CANDIDATES) s.candidates.push(genCandidate(s, 1 + Math.min(0.6, m / 120)));
   }

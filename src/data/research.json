@@ -516,6 +516,40 @@
   "desc": "Permet de louer vos moteurs à d’autres studios."
  },
  {
+  "id": "addons",
+  "name": "Extensions",
+  "group": "Production",
+  "year": 1983,
+  "rp": 15,
+  "money": 10000,
+  "req": [],
+  "desc": "Développer des extensions pour vos jeux."
+ },
+ {
+  "id": "online",
+  "name": "Jeux en ligne",
+  "group": "Production",
+  "year": 1995,
+  "rp": 90,
+  "money": 100000,
+  "req": [
+   "sizeM"
+  ],
+  "desc": "Débloque les jeux à abonnement (MMO)."
+ },
+ {
+  "id": "f2p",
+  "name": "Free-to-play",
+  "group": "Production",
+  "year": 2006,
+  "rp": 120,
+  "money": 150000,
+  "req": [
+   "online"
+  ],
+  "desc": "Débloque le modèle free-to-play."
+ },
+ {
   "id": "topics1",
   "name": "Sujets : pack 1",
   "group": "Sujets",

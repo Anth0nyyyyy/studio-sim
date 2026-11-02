@@ -6,6 +6,9 @@ import type { Employee, Game, GameState, Project, ProjectSpec } from '../core/ty
 import { clamp, rnd } from '../core/util';
 import { fanFactor, saturation, trendMult } from './market';
 import { contractProduce, initialStock, sellWeek } from './business';
+import {
+  KIND_COST, KIND_WORK, MODEL_WORK, addonTotal, baseGame, inheritedHype, kindError, kindQuality, patchProduce, refreshLive, startLive, supportProduce,
+} from './live';
 import { book } from '../core/ledger';
 import {
   assetMult, bugMult, engineQualityMult, engineRatio, engineReady, engineWorkload, hypeMult, maxPlatforms, qaMult, sizeUnlocked,
@@ -39,12 +42,13 @@ export function idealWeights(genre: string, sub: string | null, phase: number): 
   return g.map((v, i) => v * 0.7 + s[i] * 0.3);
 }
 
-export function projectCost(spec: Pick<ProjectSpec, 'size' | 'platforms'>): number {
-  return SIZES[spec.size].cost + spec.platforms.reduce((a, id) => a + PLATFORM[id].license, 0);
+export function projectCost(spec: Pick<ProjectSpec, 'size' | 'platforms' | 'kind'>): number {
+  const licenses = spec.kind === 'addon' ? 0 : spec.platforms.reduce((a, id) => a + PLATFORM[id].license, 0);
+  return Math.round(SIZES[spec.size].cost * KIND_COST[spec.kind]) + licenses;
 }
-export function phaseTarget(s: GameState, spec: Pick<ProjectSpec, 'size' | 'platforms' | 'engine'>): number {
+export function phaseTarget(s: GameState, spec: Pick<ProjectSpec, 'size' | 'platforms' | 'engine' | 'kind' | 'model'>): number {
   const e = s.engines.find(o => o.id === spec.engine);
-  return SIZES[spec.size].target * (1 + 0.25 * (spec.platforms.length - 1)) * (e ? engineWorkload(e) : 1);
+  return SIZES[spec.size].target * (1 + 0.25 * (spec.platforms.length - 1)) * (e ? engineWorkload(e) : 1) * KIND_WORK[spec.kind] * MODEL_WORK[spec.model];
 }
 
 export function validateSpec(s: GameState, spec: ProjectSpec): string | null {
@@ -63,6 +67,8 @@ export function validateSpec(s: GameState, spec: ProjectSpec): string | null {
   const avail = new Set(availablePlatforms(s).map(p => p.id));
   if (spec.platforms.some(p => !avail.has(p))) return 'Plateforme indisponible';
   if (s.employees.length < SIZES[spec.size].minStaff) return `Il faut ${SIZES[spec.size].minStaff} employés pour cette taille`;
+  const k = kindError(s, spec);
+  if (k) return k;
   if (s.money < projectCost(spec)) return 'Fonds insuffisants';
   return null;
 }
@@ -76,7 +82,7 @@ export function startProject(s: GameState, spec: ProjectSpec): string | null {
     ...spec, name: spec.name.trim(), cost, phase: 0, progress: 0, target: phaseTarget(s, spec),
     sliders: [[50, 50, 50], [50, 50, 50], [50, 50, 50]], wait: true,
     areas: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-    design: 0, tech: 0, graph: 0, son: 0, bugs: 0, hype: 0, startedAt: s.time,
+    design: 0, tech: 0, graph: 0, son: 0, bugs: 0, hype: inheritedHype(s, spec), startedAt: s.time,
   };
   log(s, `Développement lancé : ${s.project.name} (${spec.topic} / ${spec.genre}).`);
   emit('sliders', undefined);
@@ -110,7 +116,9 @@ export function produce(s: GameState, e: Employee, roomType: string, factor: num
   s.output[out] = (s.output[out] ?? 0) + pts;
   if (out === 'rp') { s.rp += pts; return pts; }
 
+  if (supportProduce(s, out, pts)) return pts;
   if (contractProduce(s, out, pts)) return pts;
+  if (patchProduce(s, out, pts)) return pts;
   const p = s.project;
   if (!p || p.wait) return pts;
   switch (out) {
@@ -161,13 +169,13 @@ export function evaluate(s: GameState, p: Project): Breakdown {
   const audience = audienceFit(p.topic, p.audience);
   const sub = subFit(p.genre, p.sub);
   const prev = s.games[0];
-  const repeat = prev && prev.topic === p.topic && prev.genre === p.genre ? 0.8 : prev && prev.genre === p.genre ? 0.95 : 1;
+  const repeat = p.kind !== 'new' ? 1 : prev && prev.topic === p.topic && prev.genre === p.genre ? 0.8 : prev && prev.genre === p.genre ? 0.95 : 1;
   const bugPenalty = Math.max(0.4, 1 - (p.bugs / dev) * 2);
   const content = dev + assetPts;
   const eng = s.engines.find(o => o.id === p.engine);
   const engine = eng ? engineRatio(s, eng, p.genre) : 1;
   const quality = content * (0.55 + 0.6 * focus) * (0.8 + 0.35 * balance) * assets * engineQualityMult(engine) *
-    COMBO_MULT[combo] * AUD_MULT[audience] * sub * repeat * bugPenalty;
+    COMBO_MULT[combo] * AUD_MULT[audience] * sub * repeat * bugPenalty * kindQuality(s, p);
   return { content, focus, balance, assets, engine, combo, audience, sub, repeat, bugPenalty, quality };
 }
 
@@ -184,10 +192,13 @@ export function salesSchedule(s: GameState, spec: ProjectSpec, score: number, hy
   }, 0);
   const aud = AUDIENCES.find(a => a.id === spec.audience)!.market;
   const hypeBoost = 1 + Math.min(1.5, hype / 50);
-  const total = 20000 * platforms * sz.units * aud * Math.pow(score / 10, 2.5) *
-    fanFactor(s, spec.genre) * trendMult(s, spec.genre, spec.topic) * saturation(s, spec.genre) * hypeBoost * rnd(0.85, 1.15);
   const n = sz.weeks;
   const w = norm(Array.from({ length: n }, (_, i) => (i < 2 ? 1 + i * 0.3 : 1.3 * Math.pow(0.82, i - 1))));
+  if (spec.kind === 'addon') return w.map(v => v * addonTotal(s, spec, score) * hypeBoost);
+  const kindMult = spec.kind === 'remaster' ? 0.6 : spec.kind === 'sequel' ? 0.8 + (baseGame(s, spec)?.score ?? 5) / 20 : 1;
+  const modelMult = spec.model === 'mmo' ? 0.6 : 1;
+  const total = kindMult * modelMult * 20000 * platforms * sz.units * aud * Math.pow(score / 10, 2.5) *
+    fanFactor(s, spec.genre) * trendMult(s, spec.genre, spec.topic) * saturation(s, spec.genre) * hypeBoost * rnd(0.85, 1.15);
   return w.map(v => v * total);
 }
 
@@ -200,14 +211,16 @@ export function release(s: GameState): Game | null {
   if (b.quality > s.best) s.best += (b.quality - s.best) * 0.6;
   const reviews = REVIEWERS.map(() => clamp(Math.round(base + rnd(-1, 1)), 1, 10));
   const score = reviews.reduce((a, c) => a + c, 0) / reviews.length;
-  const spec: ProjectSpec = { name: p.name, topic: p.topic, genre: p.genre, sub: p.sub, audience: p.audience, size: p.size, platforms: p.platforms, engine: p.engine, price: p.price };
+  const spec: ProjectSpec = { name: p.name, topic: p.topic, genre: p.genre, sub: p.sub, audience: p.audience, size: p.size, platforms: p.platforms, engine: p.engine, price: p.price, kind: p.kind, base: p.base, model: p.model };
   const game: Game = {
     ...spec, id: s.nextId++, score, reviews, quality: b.quality,
     units: 0, revenue: 0, cost: p.cost, sched: salesSchedule(s, spec, score, p.hype), si: 0, releasedAt: s.time, weekly: 0,
-    stock: 0, collector: 0, auto: true, lost: 0, digital: 0,
+    stock: 0, collector: 0, auto: p.model !== 'f2p', lost: 0, digital: 0, bugs: Math.round(p.bugs), patched: false,
   };
   s.games.unshift(game);
-  initialStock(s, game);
+  if (game.model !== 'f2p') initialStock(s, game);
+  if (game.model !== 'boxed') startLive(s, game);
+  if (game.kind === 'addon' && game.base !== null) refreshLive(s, game.base);
   s.project = null;
   s.combos[`${p.topic}|${p.genre}`] = b.combo;
 

@@ -44,6 +44,6 @@ tests/     tests de simulation
 - [x] **Lot 3 – Moteurs et recherche** : 43 recherches (fonctions de moteur par époque, tailles, portage, bonus de production, sujets), moteurs maison construits en jours, effet sur note et charge de travail, licences
 - [x] **Lot 4 – Marché** : 9 studios concurrents fictifs, classement hebdo, tendances semestrielles, saturation par genre, fans par genre, salon annuel, trophées de fin d’année, clients des licences
 - [x] **Lot 5 – Business** : stock physique, entrepôt, réassort, collector, part digitale, prix de vente, comptabilité mensuelle, contrats de sous-traitance, édition d’indés, prêts bancaires, bourse et rachat de concurrents
-- [ ] **Lot 6 – Live** : suites, add-ons, MMO, F2P, patchs
+- [x] **Lot 6 – Live** : suites, extensions, remasters, MMO à abonnement, free-to-play, joueurs et churn, salle serveurs, patchs, support client
 - [ ] **Lot 7 – Hardware** : consoles maison
 - [ ] **Lot 8 – Polish** : événements, succès, tutoriel, sons, équilibrage

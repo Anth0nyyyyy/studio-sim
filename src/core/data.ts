@@ -36,7 +36,7 @@ export const FURN: Record<string, FurnDef> = Object.fromEntries(FURN_LIST.map(f 
 export const NAMES = namesJson as { first: string[]; last: string[] };
 
 export const OUTPUT_LABEL: Record<string, string> = {
-  dev: 'Dev', graph: 'Graphismes', son: 'Son', qa: 'Tests', rp: 'Recherche', hype: 'Hype', hw: 'Hardware',
+  dev: 'Dev', graph: 'Graphismes', son: 'Son', qa: 'Tests', rp: 'Recherche', hype: 'Hype', hw: 'Hardware', support: 'Support',
 };
 
 export const isWorkRoom = (type: string) => !!ROOMS[type]?.skills;

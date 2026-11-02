@@ -14,7 +14,7 @@ function game(s: GameState, o: Partial<Game> = {}): Game {
   const g: Game = {
     id: s.nextId++, name: 'Test', topic: 'Médiéval', genre: 'RPG', sub: null, audience: 'all', size: 'S', platforms: ['pc'], engine: 1, price: 1,
     score: 7, reviews: [7, 7, 7, 7], quality: 1, units: 0, revenue: 0, cost: 0, sched: [1000, 1000, 1000, 1000], si: 0, releasedAt: s.time,
-    weekly: 0, stock: 0, collector: 0, auto: false, lost: 0, digital: 0, ...o,
+    weekly: 0, stock: 0, collector: 0, auto: false, lost: 0, digital: 0, bugs: 0, patched: false, kind: 'new', base: null, model: 'boxed', ...o,
   };
   s.games.unshift(g);
   return g;
