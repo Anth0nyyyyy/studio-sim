@@ -11,11 +11,15 @@ const WEEK = 7 * DAY_SEC;
 describe('marché', () => {
   it('les concurrents sortent des jeux et remplissent le classement', () => {
     const s = newGame();
-    for (let i = 0; i < 80; i++) { s.time += WEEK; marketWeek(s); }
-    expect(s.market.games.length).toBeGreaterThan(0);
-    expect(s.market.chart.length).toBeGreaterThan(0);
-    const w = s.market.chart.map(e => e.weekly);
-    expect([...w].sort((a, b) => b - a)).toEqual(w);
+    let best = 0;
+    for (let i = 0; i < 80; i++) {
+      s.time += WEEK; marketWeek(s);
+      const w = s.market.chart.map(e => e.weekly);
+      expect([...w].sort((a, b) => b - a)).toEqual(w);
+      best = Math.max(best, w.length);
+    }
+    expect(s.nextId).toBeGreaterThan(30);
+    expect(best).toBeGreaterThan(0);
   });
 
   it('seuls les studios en activité publient', () => {

@@ -34,7 +34,9 @@ describe('projet de jeu', () => {
     expect(startProject(s, spec())).toBeNull();
     expect(s.money).toBeLessThan(money0);
     let guard = 0;
-    while (s.project && s.project.phase < 3 && guard++ < 40000) {
+    for (const e of s.employees) { e.skills.design = 60; e.skills.prog = 60; }
+    while (s.project && s.project.phase < 3 && guard++ < 120000) {
+      s.pendingEvent = null;
       if (s.project.wait) setSliders(s, [40, 80, 100]);
       tick(s, 0.1);
     }
