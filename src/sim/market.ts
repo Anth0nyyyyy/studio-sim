@@ -6,6 +6,7 @@ import type { AwardResult, ChartEntry, GameState, Market, RivalDef, RivalGame } 
 import { clamp, money, pick, rnd } from '../core/util';
 import { book } from '../core/ledger';
 import { availablePlatforms, comboOf, year } from './project';
+import { royaltiesFor } from './hardware';
 
 export const CHART_SIZE = 10;
 const yearOf = (t: number) => START_YEAR + Math.floor(monthIndex(t) / 12);
@@ -153,6 +154,7 @@ export function marketWeek(s: GameState) {
       g.units += g.weekly;
       m.yearUnits[g.studio] = (m.yearUnits[g.studio] ?? 0) + g.weekly;
       m.monthUnits[g.studio] = (m.monthUnits[g.studio] ?? 0) + g.weekly;
+      royaltiesFor(s, g.platform, g.weekly);
     } else g.weekly = 0;
   }
   const keepAfter = s.time - 6 * 28 * 14;

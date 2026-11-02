@@ -1,9 +1,10 @@
-import { AUDIENCES, GENRE, GENRES, PHASES, PLATFORM, REVIEWERS, SIZES, TOPICS, VERDICTS } from '../core/data';
+import { AUDIENCES, GENRE, GENRES, PHASES, REVIEWERS, SIZES, TOPICS, VERDICTS } from '../core/data';
 import type { BusinessModel, Game, GameState, ProjectKind, ProjectSpec, SizeId } from '../core/types';
 import { esc, money } from '../core/util';
 import { engineReady, maxPlatforms, sizeUnlocked } from '../sim/research';
 import { COLLECTOR_COST, PRICE_LEVELS, capacity, digitalShare, orderStock, physicalForecast, prodCost, stored, unitPrice } from '../sim/business';
 import { toast } from './ui';
+import { platformName } from '../sim/hardware';
 import { F2P_ARPU, KIND_LABEL, MODEL_LABEL, SUBSCRIPTION, canPatch, eligibleBases, livePlayers, serverCapacity, serverUpkeep, startPatch } from '../sim/live';
 import {
   COMBO_LABEL, audienceFit, availablePlatforms, importanceLabel, phaseTarget,
@@ -32,7 +33,7 @@ export function renderProjectCard(s: GameState, openSlidersFn: () => void) {
     cardKey = key;
     const phaseName = p.phase <= 2 ? `Phase ${p.phase + 1}/3 · ${PHASES[p.phase].name}` : 'Polissage';
     el.innerHTML = `
-      <div class="pt"><b>${esc(p.name)}</b><small>${esc(p.topic)} · ${p.genre}${p.sub ? '/' + p.sub : ''} · ${p.platforms.map(id => PLATFORM[id].name).join(', ')}</small></div>
+      <div class="pt"><b>${esc(p.name)}</b><small>${esc(p.topic)} · ${p.genre}${p.sub ? '/' + p.sub : ''} · ${p.platforms.map(id => platformName(s, id)).join(', ')}</small></div>
       <div class="meta">${phaseName}${p.wait ? ' · en attente de vos priorités' : ''}</div>
       <div class="segs">${[0, 1, 2, 3].map(i => `<div><i id="pseg${i}"></i></div>`).join('')}</div>
       <div class="pnums">
@@ -223,7 +224,7 @@ export function openGames(s: GameState) {
       ${s.games.map(g => `<tr><td><b>${esc(g.name)}</b></td>
         <td><span class="score" style="background:${scoreColor(g.score)}">${g.score.toFixed(1)}</span></td>
         <td>${esc(g.topic)} / ${g.genre}${g.sub ? '/' + g.sub : ''}</td>
-        <td>${g.platforms.map(id => PLATFORM[id].name).join(', ')}</td>
+        <td>${g.platforms.map(id => platformName(s, id)).join(', ')}</td>
         <td>${g.units.toLocaleString('fr-FR')}</td><td>${g.digital.toLocaleString('fr-FR')}</td><td>${money(g.revenue)}</td>
         <td style="color:${g.revenue - g.cost >= 0 ? 'var(--good)' : 'var(--bad)'}">${money(g.revenue - g.cost)}</td>
         <td>${g.si < g.sched.length ? `En vente (${g.sched.length - g.si} sem.)` : 'Retiré'}</td></tr>`).join('')}

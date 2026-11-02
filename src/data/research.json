@@ -550,6 +550,28 @@
   "desc": "Débloque le modèle free-to-play."
  },
  {
+  "id": "hwlab",
+  "name": "Conception matérielle",
+  "group": "Studio",
+  "year": 1985,
+  "rp": 60,
+  "money": 80000,
+  "req": [],
+  "desc": "Concevoir et fabriquer vos propres consoles."
+ },
+ {
+  "id": "hwfactory",
+  "name": "Usine optimisée",
+  "group": "Studio",
+  "year": 1993,
+  "rp": 70,
+  "money": 120000,
+  "req": [
+   "hwlab"
+  ],
+  "desc": "Coût de fabrication des consoles −15 %."
+ },
+ {
   "id": "topics1",
   "name": "Sujets : pack 1",
   "group": "Sujets",

@@ -1,0 +1,16 @@
+{
+  "parts": {
+    "cpu": { "label": "Processeur", "tiers": [["Puce 8 bits", 1980, 1, 20], ["Puce 16 bits", 1987, 2, 35], ["Puce 32 bits", 1993, 4, 50], ["Processeur 64 bits", 1998, 6, 70], ["Multicœur", 2005, 9, 90], ["Multicœur avancé", 2010, 12, 110]] },
+    "gpu": { "label": "Graphismes", "tiers": [["Affichage par tuiles", 1980, 1, 15], ["Sprites matériels", 1986, 2, 30], ["Accélération 3D", 1994, 4, 60], ["Shaders", 2001, 7, 90], ["Unifié HD", 2006, 10, 120]] },
+    "ram": { "label": "Mémoire", "tiers": [["64 Ko", 1980, 1, 10], ["512 Ko", 1987, 2, 20], ["4 Mo", 1994, 3, 35], ["64 Mo", 2000, 5, 50], ["512 Mo", 2005, 7, 70], ["2 Go", 2010, 9, 90]] },
+    "media": { "label": "Support", "tiers": [["Cartouche", 1980, 1, 25], ["Disque optique", 1994, 3, 10], ["Disque haute densité", 2000, 5, 15], ["Disque haute capacité", 2006, 7, 25]] },
+    "pad": { "label": "Manette", "tiers": [["Manette simple", 1980, 1, 5], ["Manette ergonomique", 1990, 2, 10], ["Manette analogique", 1996, 3, 15], ["Manette sans fil", 2003, 4, 20], ["Détection de mouvement", 2006, 5, 30]] }
+  },
+  "forms": {
+    "home": { "label": "Console de salon", "perf": 1, "cost": 1, "price": 1 },
+    "handheld": { "label": "Console portable", "perf": 0.6, "cost": 0.6, "price": 0.6 }
+  },
+  "royalty": 2,
+  "retailShare": 0.75,
+  "weeklyDemand": 8000
+}

@@ -1,4 +1,4 @@
-import { AUDIENCES, GENRE, GENRES, PHASES, PLATFORM, PLATFORMS, REVIEWERS, ROOMS, SIZES, SUB_BAD, SUB_GOOD, TOPIC } from '../core/data';
+import { AUDIENCES, GENRE, GENRES, PHASES, PLATFORM, REVIEWERS, ROOMS, SIZES, SUB_BAD, SUB_GOOD, TOPIC } from '../core/data';
 import { emit } from '../core/events';
 import { log } from '../core/log';
 import { START_YEAR, monthIndex } from '../core/time';
@@ -6,6 +6,7 @@ import type { Employee, Game, GameState, Project, ProjectSpec } from '../core/ty
 import { clamp, rnd } from '../core/util';
 import { fanFactor, saturation, trendMult } from './market';
 import { contractProduce, initialStock, sellWeek } from './business';
+import { allAvailablePlatforms, consoleProduce, getPlatform, isOwnPlatform } from './hardware';
 import {
   KIND_COST, KIND_WORK, MODEL_WORK, addonTotal, baseGame, inheritedHype, kindError, kindQuality, patchProduce, refreshLive, startLive, supportProduce,
 } from './live';
@@ -20,7 +21,7 @@ const AUD_MULT: Record<string, number> = { '+': 1.08, '0': 1, '-': 0.8 };
 const BUG_RATE = 0.12;
 
 export const year = (s: GameState) => START_YEAR + Math.floor(monthIndex(s.time) / 12);
-export const availablePlatforms = (s: GameState) => PLATFORMS.filter(p => p.from <= year(s) && year(s) < p.to);
+export const availablePlatforms = (s: GameState) => allAvailablePlatforms(s);
 const norm = (a: number[]) => { const t = a.reduce((x, y) => x + y, 0) || 1; return a.map(v => v / t); };
 
 export function comboOf(topic: string, genre: string): string {
@@ -43,7 +44,7 @@ export function idealWeights(genre: string, sub: string | null, phase: number): 
 }
 
 export function projectCost(spec: Pick<ProjectSpec, 'size' | 'platforms' | 'kind'>): number {
-  const licenses = spec.kind === 'addon' ? 0 : spec.platforms.reduce((a, id) => a + PLATFORM[id].license, 0);
+  const licenses = spec.kind === 'addon' ? 0 : spec.platforms.reduce((a, id) => a + (PLATFORM[id]?.license ?? 0), 0);
   return Math.round(SIZES[spec.size].cost * KIND_COST[spec.kind]) + licenses;
 }
 export function phaseTarget(s: GameState, spec: Pick<ProjectSpec, 'size' | 'platforms' | 'engine' | 'kind' | 'model'>): number {
@@ -117,6 +118,7 @@ export function produce(s: GameState, e: Employee, roomType: string, factor: num
   if (out === 'rp') { s.rp += pts; return pts; }
 
   if (supportProduce(s, out, pts)) return pts;
+  if (consoleProduce(s, out, pts)) return pts;
   if (contractProduce(s, out, pts)) return pts;
   if (patchProduce(s, out, pts)) return pts;
   const p = s.project;
@@ -185,9 +187,9 @@ export function salesSchedule(s: GameState, spec: ProjectSpec, score: number, hy
   const y = year(s);
   const sz = SIZES[spec.size];
   const platforms = spec.platforms.reduce((a, id) => {
-    const pl = PLATFORM[id];
+    const pl = getPlatform(s, id)!;
     const life = pl.to - y <= 1 ? 0.55 : y - pl.from < 1 ? 0.8 : 1;
-    const fit = pl.likes.includes(spec.genre) ? 1.15 : pl.dislikes.includes(spec.genre) ? 0.8 : 1;
+    const fit = isOwnPlatform(id) ? 1.2 : pl.likes.includes(spec.genre) ? 1.15 : pl.dislikes.includes(spec.genre) ? 0.8 : 1;
     return a + pl.market * life * fit;
   }, 0);
   const aud = AUDIENCES.find(a => a.id === spec.audience)!.market;

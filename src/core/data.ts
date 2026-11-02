@@ -8,6 +8,7 @@ import gameJson from '../data/game.json';
 import researchJson from '../data/research.json';
 import marketJson from '../data/market.json';
 import businessJson from '../data/business.json';
+import hardwareJson from '../data/hardware.json';
 import type { RivalDef, AreaType, AudienceDef, EngineCat, FurnDef, GenreDef, PlatformDef, ResearchDef, RoomDef, SizeDef, SizeId, TopicDef } from './types';
 
 export const GENRES = genresJson as GenreDef[];
@@ -50,3 +51,10 @@ export const RIVAL_NAME_A = marketJson.nameA;
 export const RIVAL_NAME_B = marketJson.nameB;
 
 export const BUSINESS = businessJson as typeof businessJson & { contractKinds: Record<string, { label: string; rate: number }> };
+
+export type PartTier = [name: string, year: number, perf: number, cost: number];
+export const HARDWARE = hardwareJson as unknown as {
+  parts: Record<'cpu' | 'gpu' | 'ram' | 'media' | 'pad', { label: string; tiers: PartTier[] }>;
+  forms: Record<'home' | 'handheld', { label: string; perf: number; cost: number; price: number }>;
+  royalty: number; retailShare: number; weeklyDemand: number;
+};

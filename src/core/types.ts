@@ -180,4 +180,17 @@ export interface GameState {
   /** Points de support produits cette semaine, et taux de couverture de la semaine passée */
   supportWeek: number;
   supportRatio: number;
+  consoles: Console[];
+}
+
+export type PartId = 'cpu' | 'gpu' | 'ram' | 'media' | 'pad';
+export const PART_IDS: PartId[] = ['cpu', 'gpu', 'ram', 'media', 'pad'];
+export type ConsoleForm = 'home' | 'handheld';
+export interface ConsoleSpec { name: string; form: ConsoleForm; parts: Record<PartId, number>; price: number }
+export interface Console extends ConsoleSpec {
+  id: number; perf: number; unitCost: number; devCost: number;
+  phase: 'dev' | 'live' | 'retired';
+  progress: number; target: number;
+  launchedAt: number; retiredAt: number;
+  stock: number; auto: boolean; installed: number; weekly: number; revenue: number; royalties: number;
 }

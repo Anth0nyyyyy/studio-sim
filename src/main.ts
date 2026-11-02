@@ -14,6 +14,7 @@ import { openGames, openReview, openSliders, openWizard, renderProjectCard } fro
 import { openEngines, openResearch } from './ui/research-ui';
 import { openAwards, openExpo, openMarket } from './ui/market-ui';
 import { openFinance } from './ui/finance-ui';
+import { openConsoles } from './ui/hardware-ui';
 
 let s: GameState = loadLocal() ?? newGame();
 const ui: UIState = { tool: 'select', roomType: 'dev', furnType: 'desk', selected: null, speed: 1 };
@@ -68,6 +69,7 @@ document.getElementById('b-game')!.onclick = () => {
 document.getElementById('b-games')!.onclick = () => openGames(s);
 document.getElementById('b-market')!.onclick = () => openMarket(s);
 document.getElementById('b-finance')!.onclick = () => openFinance(s, refresh);
+document.getElementById('b-consoles')!.onclick = () => openConsoles(s, refresh);
 on('expo', ({ year }) => { refresh(); openExpo(s, year, refresh); });
 on('awards', ({ year, results, won }) => { refresh(); openAwards(year, results, won); saveLocal(s); });
 document.getElementById('b-research')!.onclick = () => openResearch(s, refresh);

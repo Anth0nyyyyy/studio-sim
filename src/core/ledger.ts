@@ -2,7 +2,7 @@ import { monthIndex } from './time';
 import type { GameState } from './types';
 
 export type LedgerCat =
-  | 'ventes' | 'abonnements' | 'microtransactions' | 'licences' | 'trophées' | 'contrats' | 'édition' | 'dividendes' | 'crédit reçu' | 'ventes d’actions' | 'reventes'
+  | 'ventes' | 'consoles' | 'royalties' | 'abonnements' | 'microtransactions' | 'licences' | 'trophées' | 'contrats' | 'édition' | 'dividendes' | 'crédit reçu' | 'ventes d’actions' | 'reventes'
   | 'salaires' | 'loyer' | 'production' | 'construction' | 'recherche' | 'développement' | 'marketing' | 'intérêts' | 'remboursements' | 'pénalités' | 'achats d’actions' | 'serveurs';
 
 export const LEDGER_MONTHS = 24;

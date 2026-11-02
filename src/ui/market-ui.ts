@@ -1,9 +1,10 @@
-import { AWARDS, EXPO, PLATFORM, RIVAL } from '../core/data';
+import { AWARDS, EXPO, RIVAL } from '../core/data';
 import { weekIndex } from '../core/time';
 import type { AwardResult, GameState } from '../core/types';
 import { esc, money } from '../core/util';
 import { activeRivals, bookStand, standCost, studioName } from '../sim/market';
 import { closeModal } from './game-ui';
+import { platformName } from '../sim/hardware';
 import { toast } from './ui';
 
 const $ = (id: string) => document.getElementById(id)!;
@@ -38,7 +39,7 @@ export function openMarket(s: GameState, start: Tab = 'chart') {
       return `<div class="ecard">
         <div class="rh"><b><i class="dot" style="background:${r.color}"></i>${r.name}</b><small>${act.has(r.id) ? 'En activité' : 'Fermé'}</small></div>
         <div class="efeat"><span><em>Spécialités</em>${r.genres.join(', ')}</span><span><em>Jeux récents</em>${games.length}</span>${games.length ? `<span><em>Note moyenne</em>${avg.toFixed(1)}</span>` : ''}</div>
-        ${last ? `<small>Dernier jeu : ${esc(last.name)} (${last.genre}, ${PLATFORM[last.platform].name}) · ${last.score.toFixed(1)}/10 · ${last.units.toLocaleString('fr-FR')} ventes</small>` : ''}
+        ${last ? `<small>Dernier jeu : ${esc(last.name)} (${last.genre}, ${platformName(s, last.platform)}) · ${last.score.toFixed(1)}/10 · ${last.units.toLocaleString('fr-FR')} ventes</small>` : ''}
       </div>`;
     });
     return `<div class="elist">${rows.join('')}</div>`;

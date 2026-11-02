@@ -9,6 +9,7 @@ import { book } from '../core/ledger';
 import { monthlyLicenses } from './research';
 import { businessMonth, businessWeek } from './business';
 import { liveMonthly, liveWeekly } from './live';
+import { hardwareWeek } from './hardware';
 
 export const LOT_RENT = 3000;
 export const CANDIDATES = 6;
@@ -40,6 +41,7 @@ export function tick(s: GameState, dt: number) {
     marketWeek(s);
     businessWeek(s);
     liveWeekly(s);
+    hardwareWeek(s);
     s.candidates.splice(0, 3);
     while (s.candidates.length < CANDIDATES) s.candidates.push(genCandidate(s, 1 + Math.min(0.6, m / 120)));
   }
