@@ -9,7 +9,7 @@ import { initMarket } from '../sim/market';
 import { genPublishOffer, refreshContractOffers } from '../sim/business';
 
 export const SAVE_KEY = 'studio-sim-save';
-export const SAVE_VERSION = 7;
+export const SAVE_VERSION = 8;
 
 /** Met à niveau une sauvegarde ancienne. */
 function migrate(s: GameState): GameState {
@@ -54,6 +54,10 @@ function migrate(s: GameState): GameState {
     s.consoles = [];
     s.version = 7;
   }
+  if (s.version === 7) {
+    Object.assign(s, { achievements: [], tutorial: -1, negMonths: 0, status: 'playing', pendingEvent: null });
+    s.version = 8;
+  }
   return s;
 }
 
@@ -73,6 +77,7 @@ export function emptyState(W = 48, H = 34): GameState {
     fansGenre: {}, market: null as unknown as Market,
     ledger: [], contracts: [], contractOffers: [], publishOffers: [], published: [], loans: [], shares: {},
     live: [], patch: null, supportWeek: 0, supportRatio: 1, consoles: [],
+    achievements: [], tutorial: 0, negMonths: 0, status: 'playing', pendingEvent: null,
   };
   s.market = initMarket(s);
   return s;

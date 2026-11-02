@@ -5,6 +5,7 @@ import { esc, money } from '../core/util';
 import { demolishRoom, roomComfort, sellFurniture } from '../sim/build';
 import { assignRoom, fire, hire, hireFee, roomSkill, stateLabel } from '../sim/employees';
 import { monthlyCosts } from '../sim/tick';
+import { SFX } from './sound';
 
 export type Tool = 'select' | 'room' | 'furn' | 'door' | 'demolish';
 export type Selection = { kind: 'emp' | 'room' | 'furn'; id: number } | null;
@@ -23,7 +24,7 @@ export function toast(m: string, err = false) {
   const box = $('toasts');
   const d = document.createElement('div');
   d.textContent = m;
-  if (err) d.className = 'err';
+  if (err) { d.className = 'err'; SFX.error(); }
   box.prepend(d);
   setTimeout(() => d.remove(), 4000);
   while (box.children.length > 4) box.lastChild!.remove();

@@ -10,6 +10,9 @@ import { monthlyLicenses } from './research';
 import { businessMonth, businessWeek } from './business';
 import { liveMonthly, liveWeekly } from './live';
 import { hardwareWeek } from './hardware';
+import { isOver, monthlyEndgame } from './endgame';
+import { rollEvent } from './random-events';
+import { checkAchievements } from './achievements';
 
 export const LOT_RENT = 3000;
 export const CANDIDATES = 6;
@@ -20,6 +23,7 @@ export function monthlyCosts(s: GameState) {
 
 /** Avance la simulation de dt secondes simulées. Pas maximum conseillé : 0,25 s. */
 export function tick(s: GameState, dt: number) {
+  if (isOver(s)) return;
   s.time += dt;
   updateEmployees(s, dt);
 
@@ -33,6 +37,8 @@ export function tick(s: GameState, dt: number) {
     monthlyLicenses(s);
     businessMonth(s);
     liveMonthly(s);
+    monthlyEndgame(s);
+    rollEvent(s);
   }
   const w = weekIndex(s.time);
   if (w > s.lastWeek) {
@@ -42,6 +48,7 @@ export function tick(s: GameState, dt: number) {
     businessWeek(s);
     liveWeekly(s);
     hardwareWeek(s);
+    checkAchievements(s);
     s.candidates.splice(0, 3);
     while (s.candidates.length < CANDIDATES) s.candidates.push(genCandidate(s, 1 + Math.min(0.6, m / 120)));
   }

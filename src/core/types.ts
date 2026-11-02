@@ -181,7 +181,15 @@ export interface GameState {
   supportWeek: number;
   supportRatio: number;
   consoles: Console[];
+  achievements: string[];
+  /** Étape du tutoriel, -1 quand il est terminé ou passé */
+  tutorial: number;
+  /** Mois consécutifs avec une trésorerie négative */
+  negMonths: number;
+  status: 'playing' | 'bankrupt' | 'ended' | 'sandbox';
+  pendingEvent: PendingEvent | null;
 }
+export interface PendingEvent { id: string; target: number | null }
 
 export type PartId = 'cpu' | 'gpu' | 'ram' | 'media' | 'pad';
 export const PART_IDS: PartId[] = ['cpu', 'gpu', 'ram', 'media', 'pad'];

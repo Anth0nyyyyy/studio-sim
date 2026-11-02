@@ -172,3 +172,17 @@ input[type=range] { width: 100%; accent-color: var(--accent) }
 .ecard .row button, .ecard > button { padding: 4px 9px; font-size: 12.5px; align-self: flex-start }
 .ecard .chips .chip { padding: 3px 8px; font-size: 12px }
 .row button small { color: var(--mute) }
+
+/* ---------- Lot 8 : finitions ---------- */
+#tuto {
+  position: fixed; left: max(10px, env(safe-area-inset-left, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 5;
+  width: min(340px, calc(100% - 20px)); background: #3a2c1e; border: 1px solid var(--accent); border-radius: 8px; padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 6px; box-shadow: 0 6px 20px rgba(0, 0, 0, .35);
+}
+#tuto p { margin: 0; font-size: 13px; line-height: 1.45 }
+#tuto small { color: var(--mute) }
+#tuto button { align-self: flex-start; font-size: 12px; padding: 4px 9px }
+.evtext { margin: 0; line-height: 1.5 }
+.aw.locked { opacity: .55 }
+.dialog.event { border-color: var(--accent) }
+@media (max-width: 760px) { #tuto { bottom: auto; top: 140px } }

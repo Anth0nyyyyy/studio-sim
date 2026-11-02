@@ -46,4 +46,4 @@ tests/     tests de simulation
 - [x] **Lot 5 – Business** : stock physique, entrepôt, réassort, collector, part digitale, prix de vente, comptabilité mensuelle, contrats de sous-traitance, édition d’indés, prêts bancaires, bourse et rachat de concurrents
 - [x] **Lot 6 – Live** : suites, extensions, remasters, MMO à abonnement, free-to-play, joueurs et churn, salle serveurs, patchs, support client
 - [x] **Lot 7 – Hardware** : conception de consoles (salon ou portable, 5 composants datés), développement par l’atelier hardware, fabrication, prix, ventes et base installée, plateforme dynamique, royalties des concurrents, arrêt de production
-- [ ] **Lot 8 – Polish** : événements, succès, tutoriel, sons, équilibrage
+- [x] **Lot 8 – Finitions** : 10 événements aléatoires à choix, 17 succès, tutoriel guidé, sons synthétisés (coupables), faillite après 3 mois dans le rouge, fin de carrière en 2013 avec score et mode libre

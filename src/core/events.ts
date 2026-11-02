@@ -9,6 +9,12 @@ export interface Events {
   expo: { year: number };
   /** Remise des prix de fin d'année. */
   awards: { year: number; results: AwardResult[]; won: number };
+  /** Un événement aléatoire demande une décision. */
+  event: void;
+  /** Un succès vient d'être débloqué. */
+  achievement: { id: string; name: string };
+  /** Faillite ou fin de carrière. */
+  gameover: { reason: 'bankrupt' | 'ended' };
 }
 
 type AnyHandler = (p: unknown) => void;

@@ -9,12 +9,15 @@ import { edgeFromPointer, normRect, placeFurniture, toggleDoor, validateFurnitur
 import { furnAt, roomAt } from './sim/grid';
 import { tick } from './sim/tick';
 import { bindPanel, openHire, renderPanel, renderTools, toast, updateTopbar, type Tool, type UIState } from './ui/ui';
-import { on } from './core/events';
+import { emit, on } from './core/events';
 import { openGames, openReview, openSliders, openWizard, renderProjectCard } from './ui/game-ui';
 import { openEngines, openResearch } from './ui/research-ui';
 import { openAwards, openExpo, openMarket } from './ui/market-ui';
 import { openFinance } from './ui/finance-ui';
 import { openConsoles } from './ui/hardware-ui';
+import { openAchievements, openEvent, openGameOver, renderTutorial } from './ui/polish-ui';
+import { SFX, isMuted, toggleMute } from './ui/sound';
+import { isOver } from './sim/endgame';
 
 let s: GameState = loadLocal() ?? newGame();
 const ui: UIState = { tool: 'select', roomType: 'dev', furnType: 'desk', selected: null, speed: 1 };
@@ -70,6 +73,21 @@ document.getElementById('b-games')!.onclick = () => openGames(s);
 document.getElementById('b-market')!.onclick = () => openMarket(s);
 document.getElementById('b-finance')!.onclick = () => openFinance(s, refresh);
 document.getElementById('b-consoles')!.onclick = () => openConsoles(s, refresh);
+document.getElementById('b-ach')!.onclick = () => openAchievements(s);
+const muteBtn = document.getElementById('b-mute')!;
+const syncMute = () => { muteBtn.textContent = isMuted() ? 'Son coupé' : 'Son'; };
+muteBtn.onclick = () => { toggleMute(); syncMute(); };
+syncMute();
+on('event', () => { refresh(); SFX.event(); openEvent(s, refresh); });
+on('achievement', () => SFX.achievement());
+on('gameover', ({ reason }) => {
+  saveLocal(s);
+  if (reason === 'bankrupt') SFX.fail(); else SFX.release();
+  openGameOver(s, reason, () => { s = newGame(); ui.selected = null; centerCamera(); refresh(); },
+    () => { s.status = 'sandbox'; refresh(); });
+});
+on('released', () => SFX.release());
+document.addEventListener('click', e => { if ((e.target as HTMLElement).closest('button')) SFX.click(); });
 on('expo', ({ year }) => { refresh(); openExpo(s, year, refresh); });
 on('awards', ({ year, results, won }) => { refresh(); openAwards(year, results, won); saveLocal(s); });
 document.getElementById('b-research')!.onclick = () => openResearch(s, refresh);
@@ -236,7 +254,7 @@ function frame(now: number) {
   if (keys.has('arrowup') || keys.has('z') || keys.has('w')) cam.y -= pan;
   if (keys.has('arrowdown') || keys.has('s')) cam.y += pan;
 
-  if (ui.speed > 0 && !document.getElementById('modal')!.innerHTML) {
+  if (ui.speed > 0 && !document.getElementById('modal')!.innerHTML && !isOver(s)) {
     let rem = dt * ui.speed;
     while (rem > 0) { const step = Math.min(0.1, rem); tick(s, step); rem -= step; }
   }
@@ -246,9 +264,11 @@ function frame(now: number) {
   draw(ctx, s, cam, vw, vh, dpr, ov, now);
 
   uiTimer += dt;
-  if (uiTimer > 0.25) { uiTimer = 0; updateTopbar(s, ui); renderPanel(s, ui); renderProjectCard(s, showSliders); }
+  if (uiTimer > 0.25) { uiTimer = 0; updateTopbar(s, ui); renderPanel(s, ui); renderProjectCard(s, showSliders); renderTutorial(s); }
   requestAnimationFrame(frame);
 }
 refresh();
-if (s.project?.wait) showSliders();
+if (isOver(s)) emit('gameover', { reason: s.status as 'bankrupt' | 'ended' });
+else if (s.pendingEvent) openEvent(s, refresh);
+else if (s.project?.wait) showSliders();
 requestAnimationFrame(frame);
