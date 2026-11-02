@@ -4,6 +4,7 @@ import { log } from '../core/log';
 import { START_YEAR, monthIndex } from '../core/time';
 import type { Employee, Game, GameState, Project, ProjectSpec } from '../core/types';
 import { clamp, money, rnd } from '../core/util';
+import { addFans, fanFactor, saturation, trendMult } from './market';
 import {
   assetMult, bugMult, engineQualityMult, engineRatio, engineReady, engineWorkload, hypeMult, maxPlatforms, qaMult, sizeUnlocked,
 } from './research';
@@ -178,9 +179,9 @@ export function salesSchedule(s: GameState, spec: ProjectSpec, score: number, hy
     return a + pl.market * life * fit;
   }, 0);
   const aud = AUDIENCES.find(a => a.id === spec.audience)!.market;
-  const hypeMult = 1 + Math.min(1.5, hype / 50);
+  const hypeBoost = 1 + Math.min(1.5, hype / 50);
   const total = 20000 * platforms * sz.units * aud * Math.pow(score / 10, 2.5) *
-    (1 + Math.sqrt(s.fans) / 150) * hypeMult * rnd(0.85, 1.15);
+    fanFactor(s, spec.genre) * trendMult(s, spec.genre, spec.topic) * saturation(s, spec.genre) * hypeBoost * rnd(0.85, 1.15);
   const n = sz.weeks;
   const w = norm(Array.from({ length: n }, (_, i) => (i < 2 ? 1 + i * 0.3 : 1.3 * Math.pow(0.82, i - 1))));
   return w.map(v => v * total);
@@ -198,7 +199,7 @@ export function release(s: GameState): Game | null {
   const spec: ProjectSpec = { name: p.name, topic: p.topic, genre: p.genre, sub: p.sub, audience: p.audience, size: p.size, platforms: p.platforms, engine: p.engine };
   const game: Game = {
     ...spec, id: s.nextId++, score, reviews, quality: b.quality,
-    units: 0, revenue: 0, cost: p.cost, sched: salesSchedule(s, spec, score, p.hype), si: 0, releasedAt: s.time,
+    units: 0, revenue: 0, cost: p.cost, sched: salesSchedule(s, spec, score, p.hype), si: 0, releasedAt: s.time, weekly: 0,
   };
   s.games.unshift(game);
   s.project = null;
@@ -241,12 +242,14 @@ export function importanceLabel(w: number) {
 /** Ventes hebdomadaires de tous les jeux en rayon. */
 export function weeklySales(s: GameState) {
   for (const g of s.games) {
-    if (g.si >= g.sched.length) continue;
+    if (g.si >= g.sched.length) { g.weekly = 0; continue; }
     const u = Math.round(g.sched[g.si++]);
+    g.weekly = u;
+    s.market.yearUnits.player = (s.market.yearUnits.player ?? 0) + u;
     const r = u * SIZES[g.size].price;
     g.units += u; g.revenue += r;
     s.money += r;
-    s.fans += u * 0.05 * (g.score / 10);
+    addFans(s, g.genre, u * 0.05 * (g.score / 10));
     if (g.si === g.sched.length) log(s, `${g.name} quitte les rayons : ${u ? g.units.toLocaleString('fr-FR') : 0} ventes, bénéfice ${money(g.revenue - g.cost)}.`);
   }
 }

@@ -73,10 +73,10 @@ export function openWizard(s: GameState, onStart: () => void) {
     return `<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="wz-t">
       <header><h3 id="wz-t">Nouveau jeu</h3><button data-close>Annuler</button></header>
       <label class="field"><span>Titre</span><input type="text" id="wz-name" maxlength="40" value="${esc(spec.name)}"></label>
-      <div class="field"><span>Sujet</span><div class="chips">${TOPICS.filter(t => s.topics.includes(t.name)).map(t => chip('topic', t.name, spec.topic === t.name, t.name)).join('')}</div></div>
+      <div class="field"><span>Sujet</span><div class="chips">${TOPICS.filter(t => s.topics.includes(t.name)).map(t => chip('topic', t.name, spec.topic === t.name, t.name, s.market.trend.topic === t.name ? 'tendance' : '')).join('')}</div></div>
       <div class="field"><span>Genre</span><div class="chips">${GENRES.map(g => {
         const c = spec.topic ? s.combos[`${spec.topic}|${g.id}`] : undefined;
-        return chip('genre', g.id, spec.genre === g.id, g.id, c ? COMBO_ICON[c] : '');
+        return chip('genre', g.id, spec.genre === g.id, g.id, [c ? COMBO_ICON[c] : '', s.market.trend.genre === g.id ? 'tendance' : ''].filter(Boolean).join(' · '));
       }).join('')}</div>${known ? `<div class="hint">Déjà testé : ${COMBO_LABEL[known]}</div>` : ''}</div>
       <div class="field"><span>Sous-genre (facultatif)</span><div class="chips">${chip('sub', '', spec.sub === null, 'Aucun')}${GENRES.filter(g => g.id !== spec.genre).map(g => chip('sub', g.id, spec.sub === g.id, g.id)).join('')}</div></div>
       <div class="field"><span>Public</span><div class="chips">${AUDIENCES.map(a => chip('audience', a.id, spec.audience === a.id, a.name)).join('')}</div>

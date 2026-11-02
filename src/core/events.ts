@@ -1,10 +1,14 @@
-import type { Game } from './types';
+import type { AwardResult, Game } from './types';
 
 export interface Events {
   /** Une phase se termine : le joueur doit régler les curseurs de la suivante. */
   sliders: void;
   /** Un jeu vient de sortir. */
   released: { game: Game; notes: string[]; insight: string };
+  /** Le salon annuel ouvre ses portes. */
+  expo: { year: number };
+  /** Remise des prix de fin d'année. */
+  awards: { year: number; results: AwardResult[]; won: number };
 }
 
 type AnyHandler = (p: unknown) => void;

@@ -4,6 +4,7 @@ import type { GameState } from '../core/types';
 import { money } from '../core/util';
 import { genCandidate, updateEmployees } from './employees';
 import { weeklySales } from './project';
+import { marketWeek } from './market';
 import { monthlyLicenses } from './research';
 
 export const LOT_RENT = 3000;
@@ -30,6 +31,7 @@ export function tick(s: GameState, dt: number) {
   if (w > s.lastWeek) {
     s.lastWeek = w;
     weeklySales(s);
+    marketWeek(s);
     s.candidates.splice(0, 3);
     while (s.candidates.length < CANDIDATES) s.candidates.push(genCandidate(s, 1 + Math.min(0.6, m / 120)));
   }

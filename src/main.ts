@@ -12,6 +12,7 @@ import { bindPanel, openHire, renderPanel, renderTools, toast, updateTopbar, typ
 import { on } from './core/events';
 import { openGames, openReview, openSliders, openWizard, renderProjectCard } from './ui/game-ui';
 import { openEngines, openResearch } from './ui/research-ui';
+import { openAwards, openExpo, openMarket } from './ui/market-ui';
 
 let s: GameState = loadLocal() ?? newGame();
 const ui: UIState = { tool: 'select', roomType: 'dev', furnType: 'desk', selected: null, speed: 1 };
@@ -64,6 +65,9 @@ document.getElementById('b-game')!.onclick = () => {
   openWizard(s, refresh);
 };
 document.getElementById('b-games')!.onclick = () => openGames(s);
+document.getElementById('b-market')!.onclick = () => openMarket(s);
+on('expo', ({ year }) => { refresh(); openExpo(s, year, refresh); });
+on('awards', ({ year, results, won }) => { refresh(); openAwards(year, results, won); saveLocal(s); });
 document.getElementById('b-research')!.onclick = () => openResearch(s, refresh);
 document.getElementById('b-engines')!.onclick = () => openEngines(s, refresh);
 on('sliders', () => { refresh(); showSliders(); });

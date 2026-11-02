@@ -73,6 +73,25 @@ export interface Game extends ProjectSpec {
   id: number; score: number; reviews: number[]; quality: number;
   units: number; revenue: number; cost: number;
   sched: number[]; si: number; releasedAt: number;
+  /** Ventes de la dernière semaine */
+  weekly: number;
+}
+
+export interface RivalDef { id: string; name: string; color: string; from: number; to: number; strength: number; rate: number; genres: string[] }
+export interface RivalGame {
+  id: number; studio: string; name: string; topic: string; genre: string; platform: string;
+  score: number; units: number; sched: number[]; si: number; releasedAt: number; weekly: number;
+}
+export interface ChartEntry { kind: 'player' | 'rival'; id: number; name: string; studio: string; weekly: number; score: number; prev: number | null }
+export interface AwardResult { year: number; title: string; winner: string; studio: string; player: boolean }
+export interface Market {
+  games: RivalGame[];
+  chart: ChartEntry[];
+  trend: { genre: string; topic: string; until: number };
+  awards: AwardResult[];
+  /** Ventes cumulées par studio pour l'année en cours (studio id ou "player") */
+  yearUnits: Record<string, number>;
+  expoYear: number;
 }
 
 export interface GameState {
@@ -108,4 +127,6 @@ export interface GameState {
   done: Record<string, true>;
   topics: string[];
   engines: Engine[];
+  fansGenre: Record<string, number>;
+  market: Market;
 }

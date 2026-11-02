@@ -1,0 +1,23 @@
+{
+  "rivals": [
+    { "id": "forge", "name": "Pixelforge", "color": "#e07a5f", "from": 1980, "to": 2200, "strength": 0.9, "rate": 3, "genres": ["Action", "Aventure"] },
+    { "id": "lunatic", "name": "Lunatic Bits", "color": "#81b29a", "from": 1980, "to": 1999, "strength": 0.7, "rate": 4, "genres": ["Casual", "Action"] },
+    { "id": "tortue", "name": "Tortue Studio", "color": "#f2cc8f", "from": 1980, "to": 2200, "strength": 0.75, "rate": 2, "genres": ["Stratégie", "Simulation"] },
+    { "id": "nord", "name": "Nordwind Interactive", "color": "#7fa7d9", "from": 1984, "to": 2200, "strength": 1.0, "rate": 2, "genres": ["RPG", "Aventure"] },
+    { "id": "cobalt", "name": "Cobalt Arts", "color": "#6d7fd1", "from": 1987, "to": 2006, "strength": 0.85, "rate": 3, "genres": ["Action", "Simulation"] },
+    { "id": "kaiju", "name": "Kaiju Soft", "color": "#d16d9e", "from": 1990, "to": 2200, "strength": 1.05, "rate": 3, "genres": ["Action", "RPG"] },
+    { "id": "brume", "name": "Brume Games", "color": "#a0a6b5", "from": 1995, "to": 2200, "strength": 0.8, "rate": 2, "genres": ["Aventure", "Casual"] },
+    { "id": "vector", "name": "Vector Nine", "color": "#5fc4b8", "from": 2000, "to": 2200, "strength": 1.1, "rate": 3, "genres": ["Stratégie", "Action"] },
+    { "id": "hexa", "name": "Hexa Play", "color": "#f4a259", "from": 2007, "to": 2200, "strength": 0.85, "rate": 6, "genres": ["Casual"] }
+  ],
+  "expo": { "name": "Salon Pixel", "month": 5, "stands": [
+    { "id": "none", "name": "Pas de stand", "cost": 0, "hype": 0 },
+    { "id": "small", "name": "Petit stand", "cost": 10000, "hype": 20 },
+    { "id": "medium", "name": "Stand moyen", "cost": 40000, "hype": 60 },
+    { "id": "large", "name": "Grand stand", "cost": 120000, "hype": 150 }
+  ] },
+  "awards": { "name": "Trophées du jeu vidéo", "prize": 50000 },
+  "trendWeeks": 24,
+  "nameA": ["Shadow", "Crystal", "Neon", "Galaxy", "Thunder", "Mystic", "Steel", "Wild", "Silent", "Golden", "Hyper", "Ancient"],
+  "nameB": ["Strike", "Kingdom", "Runner", "Empire", "Saga", "Hunter", "Islands", "Force", "Tales", "Racer", "Legacy", "Storm"]
+}

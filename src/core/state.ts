@@ -4,10 +4,11 @@ import { genCandidate, hire } from '../sim/employees';
 import { CANDIDATES } from '../sim/tick';
 import { baseResearch, bestFeatures, createEngine, startingTopics } from '../sim/research';
 import { log } from './log';
-import type { GameState } from './types';
+import type { GameState, Market } from './types';
+import { initMarket } from '../sim/market';
 
 export const SAVE_KEY = 'studio-sim-save';
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
 /** Met à niveau une sauvegarde ancienne. */
 function migrate(s: GameState): GameState {
@@ -24,6 +25,13 @@ function migrate(s: GameState): GameState {
     for (const g of s.games) g.engine = s.engines[0].id;
     s.version = 3;
   }
+  if (s.version === 3) {
+    s.fansGenre = {};
+    const total = s.games.reduce((a, g) => a + g.units, 0) || 1;
+    for (const g of s.games) { g.weekly = 0; s.fansGenre[g.genre] = (s.fansGenre[g.genre] ?? 0) + s.fans * g.units / total; }
+    s.market = initMarket(s);
+    s.version = 4;
+  }
   return s;
 }
 
@@ -33,14 +41,17 @@ export function emptyState(W = 48, H = 34): GameState {
   for (let y = 0; y < H; y++)
     for (let x = 0; x < W; x++)
       roomMap.push(x >= lot.x0 && x <= lot.x1 && y >= lot.y0 && y <= lot.y1 ? 0 : -1);
-  return {
+  const s: GameState = {
     version: SAVE_VERSION, W, H, lot,
     entrance: [Math.floor((lot.x0 + lot.x1) / 2), lot.y1],
     roomMap, rooms: [], furniture: [], doors: [], employees: [], candidates: [],
     money: 0, time: 0, nextId: 1, output: {}, log: [], lastMonth: 0, lastWeek: 0,
     project: null, games: [], fans: 0, rp: 0, best: 0, know: {}, combos: {},
     done: baseResearch(), topics: startingTopics(), engines: [],
+    fansGenre: {}, market: null as unknown as Market,
   };
+  s.market = initMarket(s);
+  return s;
 }
 
 /** Nouvelle partie avec un petit studio de départ. */

@@ -4,6 +4,7 @@ import { DAY_SEC } from '../core/time';
 import { ENGINE_CATS, type Engine, type EngineCat, type GameState, type ResearchDef } from '../core/types';
 import { money } from '../core/util';
 import { year } from './project';
+import { licenseClients } from './market';
 
 export type ResearchStatus = 'done' | 'open' | 'locked';
 
@@ -121,8 +122,8 @@ export function monthlyLicenses(s: GameState): number {
   let total = 0;
   for (const e of s.engines) {
     if (!e.licensed || !engineReady(s, e)) continue;
-    const fresh = engineRatio(s, e, 'Action');
-    const inc = Math.round(e.tech * 350 * Math.max(0, fresh - 0.5) ** 2);
+    const clients = licenseClients(s, engineRatio(s, e, 'Action'));
+    const inc = Math.round(clients * e.tech * 150);
     e.licenseIncome += inc;
     total += inc;
   }
