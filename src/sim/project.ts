@@ -3,8 +3,10 @@ import { emit } from '../core/events';
 import { log } from '../core/log';
 import { START_YEAR, monthIndex } from '../core/time';
 import type { Employee, Game, GameState, Project, ProjectSpec } from '../core/types';
-import { clamp, money, rnd } from '../core/util';
-import { addFans, fanFactor, saturation, trendMult } from './market';
+import { clamp, rnd } from '../core/util';
+import { fanFactor, saturation, trendMult } from './market';
+import { contractProduce, initialStock, sellWeek } from './business';
+import { book } from '../core/ledger';
 import {
   assetMult, bugMult, engineQualityMult, engineRatio, engineReady, engineWorkload, hypeMult, maxPlatforms, qaMult, sizeUnlocked,
 } from './research';
@@ -56,6 +58,7 @@ export function validateSpec(s: GameState, spec: ProjectSpec): string | null {
   if (!sizeUnlocked(s, spec.size)) return 'Taille non débloquée par la recherche';
   const eng = s.engines.find(o => o.id === spec.engine);
   if (!eng) return 'Choisissez un moteur';
+  if (![0.7, 1, 1.3].includes(spec.price)) return 'Prix invalide';
   if (!engineReady(s, eng)) return 'Ce moteur est encore en construction';
   const avail = new Set(availablePlatforms(s).map(p => p.id));
   if (spec.platforms.some(p => !avail.has(p))) return 'Plateforme indisponible';
@@ -68,7 +71,7 @@ export function startProject(s: GameState, spec: ProjectSpec): string | null {
   const err = validateSpec(s, spec);
   if (err) return err;
   const cost = projectCost(spec);
-  s.money -= cost;
+  book(s, 'développement', -cost);
   s.project = {
     ...spec, name: spec.name.trim(), cost, phase: 0, progress: 0, target: phaseTarget(s, spec),
     sliders: [[50, 50, 50], [50, 50, 50], [50, 50, 50]], wait: true,
@@ -107,6 +110,7 @@ export function produce(s: GameState, e: Employee, roomType: string, factor: num
   s.output[out] = (s.output[out] ?? 0) + pts;
   if (out === 'rp') { s.rp += pts; return pts; }
 
+  if (contractProduce(s, out, pts)) return pts;
   const p = s.project;
   if (!p || p.wait) return pts;
   switch (out) {
@@ -196,12 +200,14 @@ export function release(s: GameState): Game | null {
   if (b.quality > s.best) s.best += (b.quality - s.best) * 0.6;
   const reviews = REVIEWERS.map(() => clamp(Math.round(base + rnd(-1, 1)), 1, 10));
   const score = reviews.reduce((a, c) => a + c, 0) / reviews.length;
-  const spec: ProjectSpec = { name: p.name, topic: p.topic, genre: p.genre, sub: p.sub, audience: p.audience, size: p.size, platforms: p.platforms, engine: p.engine };
+  const spec: ProjectSpec = { name: p.name, topic: p.topic, genre: p.genre, sub: p.sub, audience: p.audience, size: p.size, platforms: p.platforms, engine: p.engine, price: p.price };
   const game: Game = {
     ...spec, id: s.nextId++, score, reviews, quality: b.quality,
     units: 0, revenue: 0, cost: p.cost, sched: salesSchedule(s, spec, score, p.hype), si: 0, releasedAt: s.time, weekly: 0,
+    stock: 0, collector: 0, auto: true, lost: 0, digital: 0,
   };
   s.games.unshift(game);
+  initialStock(s, game);
   s.project = null;
   s.combos[`${p.topic}|${p.genre}`] = b.combo;
 
@@ -241,15 +247,5 @@ export function importanceLabel(w: number) {
 
 /** Ventes hebdomadaires de tous les jeux en rayon. */
 export function weeklySales(s: GameState) {
-  for (const g of s.games) {
-    if (g.si >= g.sched.length) { g.weekly = 0; continue; }
-    const u = Math.round(g.sched[g.si++]);
-    g.weekly = u;
-    s.market.yearUnits.player = (s.market.yearUnits.player ?? 0) + u;
-    const r = u * SIZES[g.size].price;
-    g.units += u; g.revenue += r;
-    s.money += r;
-    addFans(s, g.genre, u * 0.05 * (g.score / 10));
-    if (g.si === g.sched.length) log(s, `${g.name} quitte les rayons : ${u ? g.units.toLocaleString('fr-FR') : 0} ventes, bénéfice ${money(g.revenue - g.cost)}.`);
-  }
+  for (const g of s.games) sellWeek(s, g);
 }

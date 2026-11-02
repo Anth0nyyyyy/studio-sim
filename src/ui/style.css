@@ -164,3 +164,11 @@ input[type=range] { width: 100%; accent-color: var(--accent) }
 .aw { background: var(--panel2); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 3px }
 .aw small { color: var(--mute); font-size: 12px }
 .aw.mine { outline: 2px solid var(--accent) }
+
+/* ---------- Lot 5 : finances ---------- */
+.ledger td.pos { color: var(--good) } .ledger td.neg { color: #ffa0a8 }
+.ledger tr.tot td { font-weight: 700; border-top: 1px solid var(--line) }
+.ledger td:first-child { color: var(--mute); white-space: nowrap }
+.ecard .row button, .ecard > button { padding: 4px 9px; font-size: 12.5px; align-self: flex-start }
+.ecard .chips .chip { padding: 3px 8px; font-size: 12px }
+.row button small { color: var(--mute) }

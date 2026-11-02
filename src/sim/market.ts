@@ -4,6 +4,7 @@ import { log } from '../core/log';
 import { START_YEAR, monthIndex, weekIndex } from '../core/time';
 import type { AwardResult, ChartEntry, GameState, Market, RivalDef, RivalGame } from '../core/types';
 import { clamp, money, pick, rnd } from '../core/util';
+import { book } from '../core/ledger';
 import { availablePlatforms, comboOf, year } from './project';
 
 export const CHART_SIZE = 10;
@@ -16,7 +17,7 @@ function pickTrend(s: GameState, week: number, avoid?: string) {
 }
 
 export function initMarket(s: GameState): Market {
-  return { games: [], chart: [], trend: pickTrend(s, weekIndex(s.time)), awards: [], yearUnits: {}, expoYear: year(s) - 1 };
+  return { games: [], chart: [], trend: pickTrend(s, weekIndex(s.time)), awards: [], yearUnits: {}, monthUnits: {}, expoYear: year(s) - 1 };
 }
 
 export const activeRivals = (s: GameState) => RIVALS.filter(r => r.from <= year(s) && year(s) < r.to);
@@ -67,6 +68,7 @@ function updateChart(s: GameState) {
   const prev = new Map(s.market.chart.map((e, i) => [`${e.kind}${e.id}`, i + 1]));
   const entries: ChartEntry[] = [
     ...s.games.filter(g => g.weekly > 0).map(g => ({ kind: 'player' as const, id: g.id, name: g.name, studio: 'player', weekly: g.weekly, score: g.score, prev: null })),
+    ...s.published.filter(g => g.weekly > 0).map(g => ({ kind: 'published' as const, id: g.id, name: g.name, studio: 'player', weekly: g.weekly, score: g.score, prev: null })),
     ...s.market.games.filter(g => g.weekly > 0).map(g => ({ kind: 'rival' as const, id: g.id, name: g.name, studio: g.studio, weekly: g.weekly, score: g.score, prev: null })),
   ].sort((a, b) => b.weekly - a.weekly).slice(0, CHART_SIZE);
   for (const e of entries) e.prev = prev.get(`${e.kind}${e.id}`) ?? null;
@@ -105,7 +107,7 @@ export function runAwards(s: GameState, y: number): AwardResult[] {
   const won = results.filter(r => r.player).length;
   if (won) {
     const prize = Math.round(AWARDS.prize * yearFactor(s)) * won;
-    s.money += prize;
+    book(s, 'trophées', prize);
     const genre = s.games[0]?.genre ?? 'Action';
     addFans(s, genre, Math.round(s.fans * 0.05 + 500 * won));
     log(s, `${AWARDS.name} ${y} : ${won} trophée(s) pour vous, +${money(prize)}.`);
@@ -125,7 +127,7 @@ export function bookStand(s: GameState, id: string): string | null {
   if (!st.cost) return null;
   const cost = standCost(s, id);
   if (s.money < cost) return 'Fonds insuffisants';
-  s.money -= cost;
+  book(s, 'marketing', -cost);
   const genre = s.project?.genre ?? s.games[0]?.genre ?? 'Action';
   if (s.project) s.project.hype += st.hype;
   addFans(s, genre, st.hype * 15);
@@ -150,6 +152,7 @@ export function marketWeek(s: GameState) {
       g.weekly = Math.round(g.sched[g.si++]);
       g.units += g.weekly;
       m.yearUnits[g.studio] = (m.yearUnits[g.studio] ?? 0) + g.weekly;
+      m.monthUnits[g.studio] = (m.monthUnits[g.studio] ?? 0) + g.weekly;
     } else g.weekly = 0;
   }
   const keepAfter = s.time - 6 * 28 * 14;

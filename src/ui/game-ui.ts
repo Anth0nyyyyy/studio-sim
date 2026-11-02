@@ -2,6 +2,8 @@ import { AUDIENCES, GENRE, GENRES, PHASES, PLATFORM, REVIEWERS, SIZES, TOPICS, V
 import type { Game, GameState, ProjectSpec, SizeId } from '../core/types';
 import { esc, money } from '../core/util';
 import { engineReady, maxPlatforms, sizeUnlocked } from '../sim/research';
+import { COLLECTOR_COST, PRICE_LEVELS, capacity, digitalShare, orderStock, physicalForecast, prodCost, stored, unitPrice } from '../sim/business';
+import { toast } from './ui';
 import {
   COMBO_LABEL, audienceFit, availablePlatforms, importanceLabel, phaseTarget,
   projectCost, release, setSliders, startProject, validateSpec,
@@ -60,7 +62,7 @@ export function renderProjectCard(s: GameState, openSlidersFn: () => void) {
 export function openWizard(s: GameState, onStart: () => void) {
   const plats = availablePlatforms(s);
   const ready = s.engines.filter(e => engineReady(s, e));
-  const spec: ProjectSpec = { name: randomName(), topic: '', genre: '', sub: null, audience: 'all', size: 'S', platforms: [plats[0].id], engine: ready[ready.length - 1]?.id ?? 0 };
+  const spec: ProjectSpec = { name: randomName(), topic: '', genre: '', sub: null, audience: 'all', size: 'S', platforms: [plats[0].id], engine: ready[ready.length - 1]?.id ?? 0, price: 1 };
 
   const chip = (k: string, v: string, on: boolean, label: string, extra = '', disabled = false) =>
     `<button class="chip" data-k="${k}" data-v="${esc(v)}" aria-pressed="${on}" ${disabled ? 'disabled' : ''}>${label}${extra ? `<em>${extra}</em>` : ''}</button>`;
@@ -86,6 +88,7 @@ export function openWizard(s: GameState, onStart: () => void) {
         const unlocked = sizeUnlocked(s, k);
         return chip('size', k, spec.size === k, z.name, unlocked ? `${money(z.cost)} · ${z.minStaff}+ employés` : 'recherche requise', !unlocked || s.employees.length < z.minStaff);
       }).join('')}</div></div>
+      <div class="field"><span>Prix de vente</span><div class="chips">${PRICE_LEVELS.map(p => chip('price', String(p.value), spec.price === p.value, p.label, `${(SIZES[spec.size].price * p.value).toFixed(2)} $`)).join('')}</div></div>
       <div class="field"><span>Moteur</span><div class="chips">${ready.map(e => chip('engine', String(e.id), spec.engine === e.id, esc(e.name), `tech ${e.tech.toFixed(1)}`)).join('')}</div></div>
       <div class="field"><span>Plateformes (jusqu’à ${maxPlatforms(s)})</span><div class="chips">${plats.map(p =>
         chip('plat', p.id, spec.platforms.includes(p.id), p.name, `marché ×${p.market}${p.license ? ' · licence ' + money(p.license) : ''}`)).join('')}</div></div>
@@ -109,6 +112,7 @@ export function openWizard(s: GameState, onStart: () => void) {
       if (k === 'audience') spec.audience = v;
       if (k === 'size') spec.size = v as SizeId;
       if (k === 'engine') spec.engine = +v;
+      if (k === 'price') spec.price = +v;
       if (k === 'plat') {
         if (spec.platforms.includes(v)) { if (spec.platforms.length > 1) spec.platforms = spec.platforms.filter(x => x !== v); }
         else if (spec.platforms.length < maxPlatforms(s)) spec.platforms = [...spec.platforms, v];
@@ -171,21 +175,53 @@ export function openReview(g: Game, notes: string[], insight: string) {
 
 /* ---------- Catalogue ---------- */
 export function openGames(s: GameState) {
-  modal().innerHTML = `<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="gm-t">
+  const render = () => {
+    const onSale = s.games.filter(g => g.si < g.sched.length);
+    const used = stored(s), cap = capacity(s);
+    modal().innerHTML = `<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="gm-t" style="max-width:980px">
     <header><h3 id="gm-t">Vos jeux</h3><button data-close>Fermer</button></header>
-    ${s.games.length ? `<div class="tablewrap"><table class="games"><thead><tr>
-      <th>Jeu</th><th>Note</th><th>Sujet / genre</th><th>Plateformes</th><th>Ventes</th><th>Recette</th><th>Bénéfice</th><th>Statut</th></tr></thead><tbody>
+    <div class="sum"><span>Entrepôt : <b>${used.toLocaleString('fr-FR')}</b> / ${cap.toLocaleString('fr-FR')} copies</span>
+      <span>Coût de fabrication : ${prodCost(s).toFixed(2)} $ (collector ${COLLECTOR_COST} $)</span><span>Part du digital : ${Math.round(digitalShare(s) * 100)} %</span></div>
+    ${onSale.length ? `<h4 class="h4">En vente</h4><div class="elist">${onSale.map(g => {
+      const need = Math.round(physicalForecast(s, g, 4));
+      return `<div class="ecard">
+        <div class="rh"><b>${esc(g.name)}</b><span class="score" style="background:${scoreColor(g.score)}">${g.score.toFixed(1)}</span></div>
+        <div class="efeat"><span><em>Stock</em>${g.stock.toLocaleString('fr-FR')}</span><span><em>Collector</em>${g.collector.toLocaleString('fr-FR')}</span>
+          <span><em>Demande 4 sem.</em>${need.toLocaleString('fr-FR')}</span><span><em>Ventes ratées</em>${g.lost.toLocaleString('fr-FR')}</span>
+          <span><em>Prix unitaire</em>${unitPrice(g).toFixed(2)} $</span><span><em>Encore</em>${g.sched.length - g.si} sem.</span></div>
+        <div class="row">
+          <span class="chips">${PRICE_LEVELS.map(p => `<button class="chip" data-price="${g.id}:${p.value}" aria-pressed="${g.price === p.value}">${p.label}</button>`).join('')}</span>
+          <button data-order="${g.id}:5000">+5 000</button><button data-order="${g.id}:20000">+20 000</button>
+          <button data-coll="${g.id}">+1 000 collector</button>
+          <label class="lic"><input type="checkbox" data-auto="${g.id}" ${g.auto ? 'checked' : ''}> Réassort auto</label>
+        </div></div>`;
+    }).join('')}</div>` : ''}
+    ${s.games.length ? `<h4 class="h4">Catalogue</h4><div class="tablewrap"><table class="games"><thead><tr>
+      <th>Jeu</th><th>Note</th><th>Sujet / genre</th><th>Plateformes</th><th>Ventes</th><th>dont digital</th><th>Recette</th><th>Bénéfice</th><th>Statut</th></tr></thead><tbody>
       ${s.games.map(g => `<tr><td><b>${esc(g.name)}</b></td>
         <td><span class="score" style="background:${scoreColor(g.score)}">${g.score.toFixed(1)}</span></td>
         <td>${esc(g.topic)} / ${g.genre}${g.sub ? '/' + g.sub : ''}</td>
         <td>${g.platforms.map(id => PLATFORM[id].name).join(', ')}</td>
-        <td>${g.units.toLocaleString('fr-FR')}</td><td>${money(g.revenue)}</td>
+        <td>${g.units.toLocaleString('fr-FR')}</td><td>${g.digital.toLocaleString('fr-FR')}</td><td>${money(g.revenue)}</td>
         <td style="color:${g.revenue - g.cost >= 0 ? 'var(--good)' : 'var(--bad)'}">${money(g.revenue - g.cost)}</td>
         <td>${g.si < g.sched.length ? `En vente (${g.sched.length - g.si} sem.)` : 'Retiré'}</td></tr>`).join('')}
       </tbody></table></div>` : '<div style="color:var(--mute)">Aucun jeu sorti pour l’instant. Lancez votre premier projet avec « Nouveau jeu ».</div>'}
   </div>`;
+  };
+  const find = (id: string) => s.games.find(g => g.id === +id)!;
+  render();
+  modal().onchange = ev => {
+    const t = ev.target as HTMLInputElement;
+    if (t.dataset.auto) { find(t.dataset.auto).auto = t.checked; render(); }
+  };
   modal().onclick = ev => {
     const t = ev.target as HTMLElement;
-    if (t === modal() || t.closest('[data-close]')) closeModal();
+    if (t === modal() || t.closest('[data-close]')) { closeModal(); return; }
+    const pr = t.closest<HTMLElement>('[data-price]');
+    if (pr) { const [id, v] = pr.dataset.price!.split(':'); find(id).price = +v; render(); return; }
+    const or = t.closest<HTMLElement>('[data-order]');
+    if (or) { const [id, q] = or.dataset.order!.split(':'); const err = orderStock(s, find(id), +q); if (err) toast(err, true); render(); return; }
+    const co = t.closest<HTMLElement>('[data-coll]');
+    if (co) { const err = orderStock(s, find(co.dataset.coll!), 1000, true); if (err) toast(err, true); render(); }
   };
 }

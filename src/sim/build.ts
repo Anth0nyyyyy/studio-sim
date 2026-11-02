@@ -1,6 +1,7 @@
 import { FURN, ROOMS, isWorkRoom } from '../core/data';
 import { log } from '../core/log';
 import type { Furniture, GameState, Room } from '../core/types';
+import { book } from '../core/ledger';
 import { DIRS, edgeKey, furnAt, idx, invalidate, reachableFromEntrance, roomAt, seatsOf } from './grid';
 
 export type Result = { ok: true; cost: number } | { ok: false; cost: number; reason: string };
@@ -93,7 +94,7 @@ export function createRoom(s: GameState, type: string, x: number, y: number, w: 
       () => { tiles.forEach(t => (s.roomMap[t] = id)); s.rooms.push(room); s.doors.push(key); },
       () => { tiles.forEach(t => (s.roomMap[t] = 0)); s.rooms.pop(); s.doors.pop(); });
     if (ok) {
-      if (!free) s.money -= v.cost;
+      if (!free) book(s, 'construction', -v.cost);
       log(s, `Salle construite : ${ROOMS[type].name} (${w}×${h}).`);
       return { ok: true, cost: v.cost };
     }
@@ -120,7 +121,7 @@ export function demolishRoom(s: GameState, roomId: number) {
     return roomAt(s, x, y) !== roomAt(s, nx, ny);
   });
   for (const e of s.employees) if (e.room === roomId) { e.room = null; e.desk = null; }
-  s.money += refund;
+  book(s, 'reventes', refund);
   invalidate();
   log(s, `Salle démolie : ${ROOMS[room.type].name} (+${Math.round(refund)} $).`);
 }
@@ -148,7 +149,7 @@ export function toggleDoor(s: GameState, x: number, y: number, nx: number, ny: n
   }
   if (s.money < DOOR_COST) return fail('Fonds insuffisants', DOOR_COST);
   s.doors.push(key);
-  s.money -= DOOR_COST;
+  book(s, 'construction', -DOOR_COST);
   invalidate();
   return { ok: true, cost: DOOR_COST };
 }
@@ -177,7 +178,7 @@ export function placeFurniture(s: GameState, type: string, x: number, y: number,
   const f: Furniture = { id: s.nextId++, type, x, y, room: roomAt(s, x, y), owner: null, user: null };
   const ok = tryLayout(s, () => s.furniture.push(f), () => s.furniture.pop());
   if (!ok) { s.nextId--; return fail('Bloquerait un passage', v.cost); }
-  if (!free) s.money -= v.cost;
+  if (!free) book(s, 'construction', -v.cost);
   return { ok: true, cost: v.cost };
 }
 
@@ -195,7 +196,7 @@ export function sellFurniture(s: GameState, fid: number) {
   if (!f) return;
   detachFurniture(s, f);
   s.furniture = s.furniture.filter(o => o !== f);
-  s.money += FURN[f.type].cost * REFUND_FURN;
+  book(s, 'reventes', FURN[f.type].cost * REFUND_FURN);
   invalidate();
 }
 

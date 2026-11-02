@@ -6,9 +6,10 @@ import { baseResearch, bestFeatures, createEngine, startingTopics } from '../sim
 import { log } from './log';
 import type { GameState, Market } from './types';
 import { initMarket } from '../sim/market';
+import { genPublishOffer, refreshContractOffers } from '../sim/business';
 
 export const SAVE_KEY = 'studio-sim-save';
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 /** Met à niveau une sauvegarde ancienne. */
 function migrate(s: GameState): GameState {
@@ -32,6 +33,17 @@ function migrate(s: GameState): GameState {
     s.market = initMarket(s);
     s.version = 4;
   }
+  if (s.version === 4) {
+    Object.assign(s, { ledger: [], contracts: [], contractOffers: [], publishOffers: [], published: [], loans: [], shares: {} });
+    s.market.monthUnits = {};
+    if (s.project) s.project.price = 1;
+    for (const g of s.games) {
+      Object.assign(g, { price: 1, collector: 0, lost: 0, digital: 0, auto: true });
+      g.stock = Math.round(g.sched.slice(g.si).reduce((a, v) => a + v, 0));
+    }
+    refreshContractOffers(s);
+    s.version = 5;
+  }
   return s;
 }
 
@@ -49,6 +61,7 @@ export function emptyState(W = 48, H = 34): GameState {
     project: null, games: [], fans: 0, rp: 0, best: 0, know: {}, combos: {},
     done: baseResearch(), topics: startingTopics(), engines: [],
     fansGenre: {}, market: null as unknown as Market,
+    ledger: [], contracts: [], contractOffers: [], publishOffers: [], published: [], loans: [], shares: {},
   };
   s.market = initMarket(s);
   return s;
@@ -76,6 +89,8 @@ export function newGame(): GameState {
   while (s.candidates.length < CANDIDATES) s.candidates.push(genCandidate(s));
   s.money = 120000;
   s.rp = 25;
+  refreshContractOffers(s);
+  s.publishOffers = [genPublishOffer(s)];
   s.log = [];
   log(s, 'Bienvenue ! Construisez des salles, meublez-les et recrutez votre équipe.');
   return s;

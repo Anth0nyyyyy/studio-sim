@@ -17,7 +17,7 @@ export interface RoomDef {
 }
 export interface FurnDef {
   id: string; name: string; cost: number; rooms: string[];
-  use?: 'work' | NeedKind; comfort?: number; boost?: number; duration?: number;
+  use?: 'work' | NeedKind; comfort?: number; boost?: number; duration?: number; capacity?: number;
 }
 
 export interface Room { id: number; type: string; x: number; y: number; w: number; h: number; cost: number }
@@ -58,6 +58,8 @@ export interface AudienceDef { id: string; name: string; market: number }
 export interface ProjectSpec {
   name: string; topic: string; genre: string; sub: string | null;
   audience: string; size: SizeId; platforms: string[]; engine: number;
+  /** Multiplicateur de prix : 0.7 bas, 1 normal, 1.3 élevé */
+  price: number;
 }
 export interface Project extends ProjectSpec {
   cost: number;
@@ -75,14 +77,37 @@ export interface Game extends ProjectSpec {
   sched: number[]; si: number; releasedAt: number;
   /** Ventes de la dernière semaine */
   weekly: number;
+  /** Stock physique (standard et collector) dans l'entrepôt */
+  stock: number; collector: number;
+  /** Réassort automatique */
+  auto: boolean;
+  /** Ventes physiques manquées faute de stock */
+  lost: number;
+  digital: number;
 }
+
+export type ContractKind = 'dev' | 'graph' | 'son' | 'qa';
+export interface Contract {
+  id: number; client: string; kind: ContractKind; amount: number; progress: number;
+  days: number; deadline: number; pay: number; penalty: number;
+}
+export interface PublishOffer {
+  id: number; indie: string; name: string; topic: string; genre: string;
+  low: number; high: number; hidden: number; advance: number; share: number; weeks: number; expires: number;
+}
+export interface PublishedGame {
+  id: number; indie: string; name: string; topic: string; genre: string; score: number; share: number; advance: number;
+  releaseAt: number; released: boolean; units: number; revenue: number; sched: number[]; si: number; weekly: number;
+}
+export interface Loan { id: number; principal: number; remaining: number; rate: number; monthly: number; monthsLeft: number }
+export interface LedgerRow { month: number; lines: Record<string, number> }
 
 export interface RivalDef { id: string; name: string; color: string; from: number; to: number; strength: number; rate: number; genres: string[] }
 export interface RivalGame {
   id: number; studio: string; name: string; topic: string; genre: string; platform: string;
   score: number; units: number; sched: number[]; si: number; releasedAt: number; weekly: number;
 }
-export interface ChartEntry { kind: 'player' | 'rival'; id: number; name: string; studio: string; weekly: number; score: number; prev: number | null }
+export interface ChartEntry { kind: 'player' | 'rival' | 'published'; id: number; name: string; studio: string; weekly: number; score: number; prev: number | null }
 export interface AwardResult { year: number; title: string; winner: string; studio: string; player: boolean }
 export interface Market {
   games: RivalGame[];
@@ -91,6 +116,8 @@ export interface Market {
   awards: AwardResult[];
   /** Ventes cumulées par studio pour l'année en cours (studio id ou "player") */
   yearUnits: Record<string, number>;
+  /** Ventes du mois en cours par studio (dividendes) */
+  monthUnits: Record<string, number>;
   expoYear: number;
 }
 
@@ -129,4 +156,12 @@ export interface GameState {
   engines: Engine[];
   fansGenre: Record<string, number>;
   market: Market;
+  ledger: LedgerRow[];
+  contracts: Contract[];
+  contractOffers: Contract[];
+  publishOffers: PublishOffer[];
+  published: PublishedGame[];
+  loans: Loan[];
+  /** Parts détenues dans les studios concurrents, en % */
+  shares: Record<string, number>;
 }

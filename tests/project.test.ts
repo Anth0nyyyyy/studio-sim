@@ -6,7 +6,7 @@ import { comboOf, evaluate, release, setSliders, startProject, validateSpec } fr
 import { tick } from '../src/sim/tick';
 
 const spec = (o: Partial<ProjectSpec> = {}): ProjectSpec => ({
-  name: 'Test Quest', topic: 'Médiéval', genre: 'RPG', sub: null, audience: 'all', size: 'S', platforms: ['pc'], engine: 1, ...o,
+  name: 'Test Quest', topic: 'Médiéval', genre: 'RPG', sub: null, audience: 'all', size: 'S', platforms: ['pc'], engine: 1, price: 1, ...o,
 });
 
 let slidersAsked = 0;

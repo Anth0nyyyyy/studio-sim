@@ -7,6 +7,7 @@ import platformsJson from '../data/platforms.json';
 import gameJson from '../data/game.json';
 import researchJson from '../data/research.json';
 import marketJson from '../data/market.json';
+import businessJson from '../data/business.json';
 import type { RivalDef, AreaType, AudienceDef, EngineCat, FurnDef, GenreDef, PlatformDef, ResearchDef, RoomDef, SizeDef, SizeId, TopicDef } from './types';
 
 export const GENRES = genresJson as GenreDef[];
@@ -47,3 +48,5 @@ export const AWARDS = marketJson.awards;
 export const TREND_WEEKS = marketJson.trendWeeks;
 export const RIVAL_NAME_A = marketJson.nameA;
 export const RIVAL_NAME_B = marketJson.nameB;
+
+export const BUSINESS = businessJson as typeof businessJson & { contractKinds: Record<string, { label: string; rate: number }> };

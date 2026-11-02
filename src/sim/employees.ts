@@ -7,6 +7,7 @@ import { roomBoost, roomComfort } from './build';
 import { canStep, roomAt, seatsOf } from './grid';
 import { findPath } from './pathfinding';
 import { produce } from './project';
+import { book } from '../core/ledger';
 import { motivationBonus } from './research';
 
 const SPEED = 3; // tuiles par seconde simulée
@@ -42,7 +43,7 @@ export function hire(s: GameState, candId: number, free = false): boolean {
   const c = s.candidates.find(o => o.id === candId);
   if (!c) return false;
   if (!free && s.money < hireFee(c)) return false;
-  if (!free) s.money -= hireFee(c);
+  if (!free) book(s, 'salaires', -hireFee(c));
   s.candidates = s.candidates.filter(o => o !== c);
   c.x = s.entrance[0] + 0.5; c.y = s.entrance[1] + 0.5;
   s.employees.push(c);

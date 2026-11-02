@@ -4,6 +4,7 @@ import { DAY_SEC } from '../core/time';
 import { ENGINE_CATS, type Engine, type EngineCat, type GameState, type ResearchDef } from '../core/types';
 import { money } from '../core/util';
 import { year } from './project';
+import { book } from '../core/ledger';
 import { licenseClients } from './market';
 
 export type ResearchStatus = 'done' | 'open' | 'locked';
@@ -32,7 +33,7 @@ export function buyResearch(s: GameState, id: string): string | null {
   if (s.rp < r.rp) return 'Points de recherche insuffisants';
   if (s.money < r.money) return 'Fonds insuffisants';
   s.rp -= r.rp;
-  s.money -= r.money;
+  book(s, 'recherche', -r.money);
   s.done[id] = true;
   if (r.topics) for (const t of r.topics) if (!s.topics.includes(t)) s.topics.push(t);
   log(s, `Recherche terminée : ${r.name}.`);
@@ -78,7 +79,7 @@ export function createEngine(s: GameState, name: string, features: Record<Engine
   }
   const cost = engineCost(features);
   if (!free && s.money < cost) return 'Fonds insuffisants';
-  if (!free) s.money -= cost;
+  if (!free) book(s, 'développement', -cost);
   const e: Engine = {
     id: s.nextId++, name: name.trim(), features: { ...features }, tech: engineTech(features), cost,
     readyAt: free ? s.time : s.time + engineDays(features) * DAY_SEC, licensed: false, licenseIncome: 0,
@@ -128,7 +129,7 @@ export function monthlyLicenses(s: GameState): number {
     total += inc;
   }
   if (total > 0) {
-    s.money += total;
+    book(s, 'licences', total);
     log(s, `Licences de moteur : +${money(total)}.`);
   }
   return total;

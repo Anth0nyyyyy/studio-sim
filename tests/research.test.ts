@@ -47,7 +47,7 @@ describe('moteurs', () => {
   it('un moteur dépassé fait baisser la qualité', () => {
     const s = newGame();
     s.time = DAY_SEC * 28 * 12 * 20; // 2000
-    startProject(s, { name: 'X', topic: 'Médiéval', genre: 'RPG', sub: null, audience: 'all', size: 'S', platforms: ['pc'], engine: s.engines[0].id });
+    startProject(s, { name: 'X', topic: 'Médiéval', genre: 'RPG', sub: null, audience: 'all', size: 'S', platforms: ['pc'], engine: s.engines[0].id, price: 1 });
     const b = evaluate(s, s.project!);
     expect(b.engine).toBeLessThan(0.5);
     expect(engineQualityMult(b.engine)).toBeLessThan(0.9);

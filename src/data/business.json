@@ -1,0 +1,16 @@
+{
+  "clients": ["Arcadia Toys", "Groupe Mistral", "Banque Solaire", "Télé Horizon", "Biscuits Lemaire", "Musée des Sciences", "Club Olympe", "Éditions Pivert", "Radio Comète", "Agence Nova"],
+  "indies": ["Studio Luciole", "Petit Golem", "Les Ateliers Kraken", "Moustache Games", "Papier Ciseaux", "Bleu Pixel", "Fennec Studio", "Nébuleuse 8"],
+  "contractKinds": {
+    "dev": { "label": "Développement d’un jeu promotionnel", "rate": 260 },
+    "graph": { "label": "Illustrations et animations", "rate": 220 },
+    "son": { "label": "Habillage sonore", "rate": 200 },
+    "qa": { "label": "Campagne de tests", "rate": 160 }
+  },
+  "loans": [50000, 200000, 1000000],
+  "loanRate": 0.01,
+  "loanMonths": 24,
+  "shareStep": 10,
+  "warehouseBase": 3000,
+  "shelfCapacity": 4000
+}

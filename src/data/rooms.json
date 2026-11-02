@@ -1,12 +1,141 @@
 [
-  { "id": "dev", "name": "Développement", "color": "#c9d6e8", "costTile": 250, "min": [3, 3], "skills": ["design", "prog"], "out": "dev" },
-  { "id": "graph", "name": "Studio graphique", "color": "#e6d2e4", "costTile": 260, "min": [3, 3], "skills": ["graph"], "out": "graph" },
-  { "id": "son", "name": "Studio son", "color": "#d3e6cf", "costTile": 280, "min": [3, 3], "skills": ["son"], "out": "son" },
-  { "id": "qa", "name": "Tests (QA)", "color": "#ece0c0", "costTile": 220, "min": [3, 3], "skills": ["tests"], "out": "qa" },
-  { "id": "rd", "name": "Recherche", "color": "#c6e3df", "costTile": 300, "min": [3, 3], "skills": ["recherche"], "out": "rp" },
-  { "id": "mkt", "name": "Marketing", "color": "#efcfc3", "costTile": 240, "min": [3, 3], "skills": ["marketing"], "out": "hype" },
-  { "id": "hw", "name": "Atelier hardware", "color": "#d6d2ca", "costTile": 320, "min": [3, 3], "skills": ["hardware"], "out": "hw" },
-  { "id": "cafe", "name": "Cafétéria", "color": "#f2e2b4", "costTile": 150, "min": [2, 3] },
-  { "id": "wc", "name": "Toilettes", "color": "#cde2ee", "costTile": 180, "min": [2, 2] },
-  { "id": "repos", "name": "Salle de repos", "color": "#e2d4ef", "costTile": 160, "min": [3, 3] }
+ {
+  "id": "dev",
+  "name": "Développement",
+  "color": "#c9d6e8",
+  "costTile": 250,
+  "min": [
+   3,
+   3
+  ],
+  "skills": [
+   "design",
+   "prog"
+  ],
+  "out": "dev"
+ },
+ {
+  "id": "graph",
+  "name": "Studio graphique",
+  "color": "#e6d2e4",
+  "costTile": 260,
+  "min": [
+   3,
+   3
+  ],
+  "skills": [
+   "graph"
+  ],
+  "out": "graph"
+ },
+ {
+  "id": "son",
+  "name": "Studio son",
+  "color": "#d3e6cf",
+  "costTile": 280,
+  "min": [
+   3,
+   3
+  ],
+  "skills": [
+   "son"
+  ],
+  "out": "son"
+ },
+ {
+  "id": "qa",
+  "name": "Tests (QA)",
+  "color": "#ece0c0",
+  "costTile": 220,
+  "min": [
+   3,
+   3
+  ],
+  "skills": [
+   "tests"
+  ],
+  "out": "qa"
+ },
+ {
+  "id": "rd",
+  "name": "Recherche",
+  "color": "#c6e3df",
+  "costTile": 300,
+  "min": [
+   3,
+   3
+  ],
+  "skills": [
+   "recherche"
+  ],
+  "out": "rp"
+ },
+ {
+  "id": "mkt",
+  "name": "Marketing",
+  "color": "#efcfc3",
+  "costTile": 240,
+  "min": [
+   3,
+   3
+  ],
+  "skills": [
+   "marketing"
+  ],
+  "out": "hype"
+ },
+ {
+  "id": "hw",
+  "name": "Atelier hardware",
+  "color": "#d6d2ca",
+  "costTile": 320,
+  "min": [
+   3,
+   3
+  ],
+  "skills": [
+   "hardware"
+  ],
+  "out": "hw"
+ },
+ {
+  "id": "cafe",
+  "name": "Cafétéria",
+  "color": "#f2e2b4",
+  "costTile": 150,
+  "min": [
+   2,
+   3
+  ]
+ },
+ {
+  "id": "wc",
+  "name": "Toilettes",
+  "color": "#cde2ee",
+  "costTile": 180,
+  "min": [
+   2,
+   2
+  ]
+ },
+ {
+  "id": "repos",
+  "name": "Salle de repos",
+  "color": "#e2d4ef",
+  "costTile": 160,
+  "min": [
+   3,
+   3
+  ]
+ },
+ {
+  "id": "stock",
+  "name": "Entrepôt",
+  "color": "#cbbfa8",
+  "costTile": 120,
+  "min": [
+   3,
+   3
+  ]
+ }
 ]
