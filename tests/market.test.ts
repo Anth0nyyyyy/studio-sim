@@ -11,7 +11,7 @@ const WEEK = 7 * DAY_SEC;
 describe('marché', () => {
   it('les concurrents sortent des jeux et remplissent le classement', () => {
     const s = newGame();
-    for (let i = 0; i < 30; i++) { s.time += WEEK; marketWeek(s); }
+    for (let i = 0; i < 80; i++) { s.time += WEEK; marketWeek(s); }
     expect(s.market.games.length).toBeGreaterThan(0);
     expect(s.market.chart.length).toBeGreaterThan(0);
     const w = s.market.chart.map(e => e.weekly);

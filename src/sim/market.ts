@@ -7,6 +7,7 @@ import { clamp, money, pick, rnd } from '../core/util';
 import { book } from '../core/ledger';
 import { availablePlatforms, comboOf, year } from './project';
 import { royaltiesFor } from './hardware';
+import { NET, myStudio } from '../core/net-state';
 
 export const CHART_SIZE = 10;
 const yearOf = (t: number) => START_YEAR + Math.floor(monthIndex(t) / 12);
@@ -80,7 +81,8 @@ function updateChart(s: GameState) {
 }
 
 export function studioName(id: string) {
-  return id === 'player' ? 'Vous' : RIVAL[id]?.name ?? id;
+  if (id === 'player' || (NET.online && id === myStudio())) return 'Vous';
+  return NET.names[id]?.name ?? RIVAL[id]?.name ?? id;
 }
 
 /** Remise des prix pour l'année écoulée. */

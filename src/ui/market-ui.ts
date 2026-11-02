@@ -5,12 +5,13 @@ import { esc, money } from '../core/util';
 import { activeRivals, bookStand, standCost, studioName } from '../sim/market';
 import { closeModal } from './game-ui';
 import { platformName } from '../sim/hardware';
+import { NET, myStudio } from '../core/net-state';
 import { toast } from './ui';
 
 const $ = (id: string) => document.getElementById(id)!;
 const modal = () => $('modal');
 const scoreColor = (v: number) => (v >= 8 ? '#93d36b' : v >= 6 ? '#ffb347' : v >= 4 ? '#e8a06b' : '#ff5d6c');
-const studioColor = (id: string) => (id === 'player' ? 'var(--accent)' : RIVAL[id]?.color ?? '#999');
+const studioColor = (id: string) => (id === 'player' || id === myStudio() ? 'var(--accent)' : NET.names[id]?.color ?? RIVAL[id]?.color ?? '#999');
 
 type Tab = 'chart' | 'rivals' | 'trends' | 'awards';
 

@@ -4,6 +4,7 @@ import { log } from '../core/log';
 import { DAY_SEC, START_YEAR, monthIndex } from '../core/time';
 import { PART_IDS, type Console, type ConsoleSpec, type GameState, type PartId, type PlatformDef } from '../core/types';
 import { clamp, money } from '../core/util';
+import { NET, toLocalPlatform } from '../core/net-state';
 
 const WEEK = 7 * DAY_SEC;
 const YEAR = 48 * WEEK;
@@ -165,6 +166,9 @@ export function ownPlatforms(s: GameState): PlatformDef[] {
 /** Toutes les plateformes connues, y compris vos consoles (même retirées, pour l'affichage). */
 export function getPlatform(s: GameState, id: string): PlatformDef | undefined {
   if (PLATFORM[id]) return PLATFORM[id];
+  id = toLocalPlatform(id);
+  const remote = NET.platforms.find(p => p.id === id);
+  if (remote) return remote;
   const c = s.consoles.find(o => consolePlatformId(o) === id);
   return c ? { id, name: c.name, from: yearOfTime(c.launchedAt), to: 2200, market: consoleMarket(c), license: 0, likes: [], dislikes: [] } : undefined;
 }
@@ -172,7 +176,7 @@ export const platformName = (s: GameState, id: string) => getPlatform(s, id)?.na
 
 export function allAvailablePlatforms(s: GameState): PlatformDef[] {
   const y = yearNow(s);
-  return [...PLATFORMS.filter(p => p.from <= y && y < p.to), ...ownPlatforms(s).filter(p => p.to > y)];
+  return [...PLATFORMS.filter(p => p.from <= y && y < p.to), ...ownPlatforms(s).filter(p => p.to > y), ...(NET.online ? NET.platforms.filter(p => p.from <= y && y < p.to) : [])];
 }
 
 export function hardwareWeek(s: GameState) {

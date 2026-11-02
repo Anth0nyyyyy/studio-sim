@@ -112,8 +112,8 @@ export function newGame(): GameState {
   return s;
 }
 
-export function saveLocal(s: GameState): boolean {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(s)); return true; } catch { return false; }
+export function saveLocal(s: GameState, key = SAVE_KEY): boolean {
+  try { localStorage.setItem(key, JSON.stringify(s)); return true; } catch { return false; }
 }
 
 export function parseSave(raw: string): GameState | null {

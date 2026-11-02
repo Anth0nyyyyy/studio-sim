@@ -5,6 +5,7 @@ import { money } from '../core/util';
 import { genCandidate, updateEmployees } from './employees';
 import { weeklySales } from './project';
 import { marketWeek } from './market';
+import { NET } from '../core/net-state';
 import { book } from '../core/ledger';
 import { monthlyLicenses } from './research';
 import { businessMonth, businessWeek } from './business';
@@ -44,11 +45,12 @@ export function tick(s: GameState, dt: number) {
   if (w > s.lastWeek) {
     s.lastWeek = w;
     weeklySales(s);
-    marketWeek(s);
+    if (!NET.online) marketWeek(s);
     businessWeek(s);
     liveWeekly(s);
     hardwareWeek(s);
     checkAchievements(s);
+    if (NET.online) NET.weekHook?.(s);
     s.candidates.splice(0, 3);
     while (s.candidates.length < CANDIDATES) s.candidates.push(genCandidate(s, 1 + Math.min(0.6, m / 120)));
   }

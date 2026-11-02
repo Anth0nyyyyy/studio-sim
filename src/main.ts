@@ -18,6 +18,10 @@ import { openConsoles } from './ui/hardware-ui';
 import { openAchievements, openEvent, openGameOver, renderTutorial } from './ui/polish-ui';
 import { SFX, isMuted, toggleMute } from './ui/sound';
 import { isOver } from './sim/endgame';
+import { NET } from './core/net-state';
+import { saveKey, send, serverNow, type NetHooks } from './net/client';
+import { openMultiplayer, renderChat, renderNetStatus, toggleChat } from './ui/mp-ui';
+import { monthIndex } from './core/time';
 
 let s: GameState = loadLocal() ?? newGame();
 const ui: UIState = { tool: 'select', roomType: 'dev', furnType: 'desk', selected: null, speed: 1 };
@@ -65,6 +69,24 @@ document.getElementById('speed')!.addEventListener('click', ev => {
 });
 document.getElementById('b-hire')!.onclick = () => openHire(s, refresh);
 const showSliders = () => openSliders(s, refresh);
+const freshStudio = () => {
+  const g = newGame();
+  if (NET.online) { g.time = s.time; g.lastMonth = monthIndex(g.time); g.lastWeek = weekIndex(g.time); g.market = s.market; g.tutorial = -1; }
+  return g;
+};
+const persist = () => (NET.online ? saveLocal(s, saveKey()) : saveLocal(s));
+let soloState: GameState | null = null;
+const netHooks: NetHooks = {
+  getState: () => s,
+  setState: st => { if (!soloState) { saveLocal(s); soloState = s; } s = st; ui.selected = null; saveWeek = weekIndex(s.time); centerCamera(); refresh(); },
+  onChange: () => {
+    if (!NET.online && soloState) { s = soloState; soloState = null; ui.selected = null; centerCamera(); }
+    refresh(); renderNetStatus(); renderChat();
+  },
+  onError: t => toast(t, true),
+};
+document.getElementById('b-mp')!.onclick = () => openMultiplayer(() => s, netHooks);
+document.getElementById('b-chat')!.onclick = toggleChat;
 document.getElementById('b-game')!.onclick = () => {
   if (s.project) { toast('Un jeu est déjà en développement.', true); return; }
   openWizard(s, refresh);
@@ -81,21 +103,21 @@ syncMute();
 on('event', () => { refresh(); SFX.event(); openEvent(s, refresh); });
 on('achievement', () => SFX.achievement());
 on('gameover', ({ reason }) => {
-  saveLocal(s);
+  persist();
   if (reason === 'bankrupt') SFX.fail(); else SFX.release();
-  openGameOver(s, reason, () => { s = newGame(); ui.selected = null; centerCamera(); refresh(); },
+  openGameOver(s, reason, () => { s = freshStudio(); ui.selected = null; centerCamera(); refresh(); },
     () => { s.status = 'sandbox'; refresh(); });
 });
 on('released', () => SFX.release());
 document.addEventListener('click', e => { if ((e.target as HTMLElement).closest('button')) SFX.click(); });
 on('expo', ({ year }) => { refresh(); openExpo(s, year, refresh); });
-on('awards', ({ year, results, won }) => { refresh(); openAwards(year, results, won); saveLocal(s); });
+on('awards', ({ year, results, won }) => { refresh(); openAwards(year, results, won); persist(); });
 document.getElementById('b-research')!.onclick = () => openResearch(s, refresh);
 document.getElementById('b-engines')!.onclick = () => openEngines(s, refresh);
 on('sliders', () => { refresh(); showSliders(); });
-on('released', ({ game, notes, insight }) => { refresh(); openReview(game, notes, insight); saveLocal(s); });
+on('released', ({ game, notes, insight }) => { refresh(); openReview(game, notes, insight); persist(); });
 document.getElementById('b-save')!.onclick = () => {
-  const ok = saveLocal(s);
+  const ok = persist();
   toast(ok ? 'Partie sauvegardée.' : 'Sauvegarde impossible dans ce navigateur.', !ok);
 };
 document.getElementById('b-export')!.onclick = () => {
@@ -117,7 +139,7 @@ let confirmNew = 0;
 document.getElementById('b-new')!.onclick = ev => {
   const b = ev.currentTarget as HTMLButtonElement;
   if (Date.now() - confirmNew > 3000) { confirmNew = Date.now(); b.textContent = 'Confirmer ?'; setTimeout(() => (b.textContent = 'Nouvelle partie'), 3000); return; }
-  s = newGame(); ui.selected = null; centerCamera(); refresh(); b.textContent = 'Nouvelle partie';
+  s = freshStudio(); ui.selected = null; centerCamera(); refresh(); b.textContent = 'Nouvelle partie';
 };
 
 /* ---------- Souris / tactile ---------- */
@@ -243,7 +265,7 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => keys.delete(e.key.toLowerCase()));
 
 /* ---------- Boucle ---------- */
-let last = performance.now(), uiTimer = 0, saveWeek = weekIndex(s.time);
+let last = performance.now(), uiTimer = 0, saveWeek = weekIndex(s.time), lastVote = -1;
 function frame(now: number) {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
@@ -254,17 +276,22 @@ function frame(now: number) {
   if (keys.has('arrowup') || keys.has('z') || keys.has('w')) cam.y -= pan;
   if (keys.has('arrowdown') || keys.has('s')) cam.y += pan;
 
-  if (ui.speed > 0 && !document.getElementById('modal')!.innerHTML && !isOver(s)) {
+  if (NET.online) {
+    if (ui.speed !== lastVote) { lastVote = ui.speed; send({ type: 'speed', v: ui.speed }); }
+    // le studio suit l'horloge commune, menus ouverts ou non
+    let rem = Math.min(30, serverNow() - s.time);
+    while (rem > 0 && !isOver(s)) { const step = Math.min(0.1, rem); tick(s, step); rem -= step; }
+  } else if (ui.speed > 0 && !document.getElementById('modal')!.innerHTML && !isOver(s)) {
     let rem = dt * ui.speed;
     while (rem > 0) { const step = Math.min(0.1, rem); tick(s, step); rem -= step; }
   }
-  if (weekIndex(s.time) > saveWeek) { saveWeek = weekIndex(s.time); saveLocal(s); }
+  if (weekIndex(s.time) > saveWeek) { saveWeek = weekIndex(s.time); persist(); }
 
   ov.selected = ui.selected;
   draw(ctx, s, cam, vw, vh, dpr, ov, now);
 
   uiTimer += dt;
-  if (uiTimer > 0.25) { uiTimer = 0; updateTopbar(s, ui); renderPanel(s, ui); renderProjectCard(s, showSliders); renderTutorial(s); }
+  if (uiTimer > 0.25) { uiTimer = 0; updateTopbar(s, ui); renderPanel(s, ui); renderProjectCard(s, showSliders); renderTutorial(s); renderNetStatus(); renderChat(); }
   requestAnimationFrame(frame);
 }
 refresh();

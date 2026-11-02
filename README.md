@@ -20,6 +20,10 @@ npm run build    # build statique dans dist/
 | Outils | Échap (sélection), R (salles), F (meubles), D (portes), X (démolir) |
 | Vitesse | Espace (pause), 1, 2, 3 |
 
+## Multijoueur
+
+Voir [MULTIJOUEUR.md](MULTIJOUEUR.md) : `npm run host` lance le serveur de partie partagée (temps, marché, consoles, bourse et chat communs).
+
 ## Architecture
 
 ```

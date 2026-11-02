@@ -288,7 +288,7 @@ export function sellShares(s: GameState, id: string): string | null {
 function monthlyDividends(s: GameState) {
   let total = 0;
   for (const [id, pct] of Object.entries(s.shares)) {
-    if (pct <= 0) continue;
+    if (pct <= 0 || id.startsWith('p:')) continue;
     const profit = (s.market.monthUnits[id] ?? 0) * 8 * 0.25;
     total += Math.round((profit * pct) / 100);
   }

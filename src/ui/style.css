@@ -1,3 +1,4 @@
+[hidden] { display: none !important }
 :root {
   --bg: #1d1922; --panel: rgba(36, 30, 43, .94); --panel2: #3a3044; --line: #514460;
   --ink: #f3ece0; --mute: #b3a6b8; --accent: #ffb347; --good: #93d36b; --bad: #ff5d6c;
@@ -186,3 +187,18 @@ input[type=range] { width: 100%; accent-color: var(--accent) }
 .aw.locked { opacity: .55 }
 .dialog.event { border-color: var(--accent) }
 @media (max-width: 760px) { #tuto { bottom: auto; top: 140px } }
+
+/* ---------- Multijoueur ---------- */
+.stat.net b { color: var(--good) }
+.chip.swatch { width: 30px; height: 26px; padding: 0; background: var(--c); border-width: 2px }
+.chip.swatch[aria-pressed="true"] { border-color: var(--ink); background: var(--c) }
+#chat {
+  position: fixed; right: max(10px, env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 6;
+  width: min(340px, calc(100% - 20px)); height: min(360px, 50%); background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 6px 20px rgba(0, 0, 0, .35);
+}
+#chat .lines { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; min-height: 0 }
+#chat .lines p { margin: 0; font-size: 13px; line-height: 1.4; overflow-wrap: anywhere }
+#chat .lines p.sys { color: var(--mute); font-style: italic }
+#chat form input { flex: 1; min-width: 0 }
+#chat form { flex-wrap: nowrap }
