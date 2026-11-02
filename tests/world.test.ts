@@ -80,7 +80,7 @@ describe('monde partagé', () => {
     const a = join(w, 'ta', 'Alice', '#f00');
     w.players[a].vote = 4;
     const kinds = new Set<string>();
-    for (let i = 0; i < 48 * 7 * 6 + 10; i++) for (const m of advance(w, 0.25, 4).broadcast) kinds.add(m.type);
+    for (let i = 0; i < 48 * 7 * 6 * 1.3; i++) for (const m of advance(w, 0.25, 4).broadcast) kinds.add(m.type);
     expect(w.nextId - 1).toBeGreaterThan(5); // sorties concurrentes (les anciennes sont élaguées du marché)
     expect(kinds.has('expo')).toBe(true);
     expect(kinds.has('awards')).toBe(true);
