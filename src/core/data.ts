@@ -5,7 +5,8 @@ import genresJson from '../data/genres.json';
 import topicsJson from '../data/topics.json';
 import platformsJson from '../data/platforms.json';
 import gameJson from '../data/game.json';
-import type { AreaType, AudienceDef, FurnDef, GenreDef, PlatformDef, RoomDef, SizeDef, SizeId, TopicDef } from './types';
+import researchJson from '../data/research.json';
+import type { AreaType, AudienceDef, EngineCat, FurnDef, GenreDef, PlatformDef, ResearchDef, RoomDef, SizeDef, SizeId, TopicDef } from './types';
 
 export const GENRES = genresJson as GenreDef[];
 export const GENRE: Record<string, GenreDef> = Object.fromEntries(GENRES.map(g => [g.id, g]));
@@ -18,6 +19,11 @@ export const SIZES = gameJson.sizes as Record<SizeId, SizeDef>;
 export const AUDIENCES = gameJson.audiences as AudienceDef[];
 export const SUB_GOOD = gameJson.subGood as [string, string][];
 export const SUB_BAD = gameJson.subBad as [string, string][];
+export const RESEARCH = researchJson as ResearchDef[];
+export const RESEARCH_BY_ID: Record<string, ResearchDef> = Object.fromEntries(RESEARCH.map(r => [r.id, r]));
+export const ENGINE_CAT_LABEL: Record<EngineCat, string> = { graph: 'Graphismes', son: 'Son', ctrl: 'Contrôles', ia: 'IA', phys: 'Physique' };
+/** Sujets débloqués par la recherche ; les autres sont disponibles d'entrée. */
+export const LOCKED_TOPICS = new Set(RESEARCH.flatMap(r => r.topics ?? []));
 export const REVIEWERS = gameJson.reviewers;
 export const VERDICTS = gameJson.verdicts;
 

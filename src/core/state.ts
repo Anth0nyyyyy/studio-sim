@@ -2,17 +2,27 @@ import { invalidate } from '../sim/grid';
 import { createRoom, placeFurniture } from '../sim/build';
 import { genCandidate, hire } from '../sim/employees';
 import { CANDIDATES } from '../sim/tick';
+import { baseResearch, bestFeatures, createEngine, startingTopics } from '../sim/research';
 import { log } from './log';
 import type { GameState } from './types';
 
 export const SAVE_KEY = 'studio-sim-save';
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 /** Met à niveau une sauvegarde ancienne. */
 function migrate(s: GameState): GameState {
   if (s.version === 1) {
     s.project = null; s.games = []; s.fans = 0; s.rp = 0; s.best = 0; s.know = {}; s.combos = {};
     s.version = 2;
+  }
+  if (s.version === 2) {
+    s.done = baseResearch();
+    s.topics = startingTopics();
+    s.engines = [];
+    createEngine(s, 'Moteur maison', bestFeatures(s), true);
+    if (s.project) s.project.engine = s.engines[0].id;
+    for (const g of s.games) g.engine = s.engines[0].id;
+    s.version = 3;
   }
   return s;
 }
@@ -29,6 +39,7 @@ export function emptyState(W = 48, H = 34): GameState {
     roomMap, rooms: [], furniture: [], doors: [], employees: [], candidates: [],
     money: 0, time: 0, nextId: 1, output: {}, log: [], lastMonth: 0, lastWeek: 0,
     project: null, games: [], fans: 0, rp: 0, best: 0, know: {}, combos: {},
+    done: baseResearch(), topics: startingTopics(), engines: [],
   };
 }
 
@@ -36,6 +47,7 @@ export function emptyState(W = 48, H = 34): GameState {
 export function newGame(): GameState {
   const s = emptyState();
   invalidate();
+  createEngine(s, 'Moteur maison', bestFeatures(s), true);
   const [ex, ey] = s.entrance;
   createRoom(s, 'dev', ex - 7, ey - 7, 7, 5, true);
   createRoom(s, 'wc', ex + 2, ey - 6, 3, 3, true);
@@ -52,6 +64,7 @@ export function newGame(): GameState {
   for (const c of [...new Set([...devs, ...s.candidates])].slice(0, 2)) hire(s, c.id, true);
   while (s.candidates.length < CANDIDATES) s.candidates.push(genCandidate(s));
   s.money = 120000;
+  s.rp = 25;
   s.log = [];
   log(s, 'Bienvenue ! Construisez des salles, meublez-les et recrutez votre équipe.');
   return s;

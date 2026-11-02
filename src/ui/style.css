@@ -129,3 +129,22 @@ input[type=range] { width: 100%; accent-color: var(--accent) }
   #project { left: max(10px, env(safe-area-inset-left, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); top: auto; bottom: calc(50% + 20px) }
   .reviews { grid-template-columns: repeat(2, minmax(0, 1fr)) }
 }
+
+/* ---------- Lot 3 : recherche et moteurs ---------- */
+.dialog header .rp { margin-left: auto; color: var(--accent); font-variant-numeric: tabular-nums }
+.rgroup { display: flex; flex-direction: column; gap: 6px }
+.rgroup h4 { margin: 4px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--mute) }
+.rgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px }
+.rcard, .ecard { background: var(--panel2); border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; min-width: 0 }
+.rcard small, .ecard small { color: var(--mute); font-size: 12px }
+.rcard.done { opacity: .55 }
+.rcard.locked { opacity: .75 }
+.rcard .ok { color: var(--good) }
+.rcard button { align-self: flex-start; padding: 4px 9px; font-size: 12.5px }
+.rh { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap }
+.elist { display: flex; flex-direction: column; gap: 8px }
+.efeat { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px }
+.efeat em { font-style: normal; color: var(--mute); margin-right: 4px }
+.eform { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; background: #332a3c; border-radius: 8px; padding: 12px }
+.eform .sum, .eform .row { grid-column: 1 / -1 }
+.lic { font-size: 12.5px; display: inline-flex; gap: 6px; align-items: center }

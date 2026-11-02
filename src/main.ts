@@ -11,6 +11,7 @@ import { tick } from './sim/tick';
 import { bindPanel, openHire, renderPanel, renderTools, toast, updateTopbar, type Tool, type UIState } from './ui/ui';
 import { on } from './core/events';
 import { openGames, openReview, openSliders, openWizard, renderProjectCard } from './ui/game-ui';
+import { openEngines, openResearch } from './ui/research-ui';
 
 let s: GameState = loadLocal() ?? newGame();
 const ui: UIState = { tool: 'select', roomType: 'dev', furnType: 'desk', selected: null, speed: 1 };
@@ -63,6 +64,8 @@ document.getElementById('b-game')!.onclick = () => {
   openWizard(s, refresh);
 };
 document.getElementById('b-games')!.onclick = () => openGames(s);
+document.getElementById('b-research')!.onclick = () => openResearch(s, refresh);
+document.getElementById('b-engines')!.onclick = () => openEngines(s, refresh);
 on('sliders', () => { refresh(); showSliders(); });
 on('released', ({ game, notes, insight }) => { refresh(); openReview(game, notes, insight); saveLocal(s); });
 document.getElementById('b-save')!.onclick = () => {

@@ -39,7 +39,17 @@ export interface LogEntry { t: string; m: string }
 
 export type SizeId = 'S' | 'M' | 'L';
 export type AreaType = 'D' | 'T';
-export interface GenreDef { id: string; color: string; design: number; graph: number; son: number; w: number[][] }
+export type EngineCat = 'graph' | 'son' | 'ctrl' | 'ia' | 'phys';
+export const ENGINE_CATS: EngineCat[] = ['graph', 'son', 'ctrl', 'ia', 'phys'];
+export interface GenreDef { id: string; color: string; design: number; graph: number; son: number; w: number[][]; engine: Record<EngineCat, number> }
+export interface ResearchDef {
+  id: string; name: string; group: string; year: number; rp: number; money: number; req: string[];
+  cat?: EngineCat; value?: number; base?: boolean; desc?: string; topics?: string[];
+}
+export interface Engine {
+  id: number; name: string; features: Record<EngineCat, string>;
+  tech: number; cost: number; readyAt: number; licensed: boolean; licenseIncome: number;
+}
 export interface TopicDef { name: string; combo: string; aud: string }
 export interface PlatformDef { id: string; name: string; from: number; to: number; market: number; license: number; likes: string[]; dislikes: string[] }
 export interface SizeDef { name: string; target: number; cost: number; units: number; price: number; minStaff: number; weeks: number }
@@ -47,7 +57,7 @@ export interface AudienceDef { id: string; name: string; market: number }
 
 export interface ProjectSpec {
   name: string; topic: string; genre: string; sub: string | null;
-  audience: string; size: SizeId; platforms: string[];
+  audience: string; size: SizeId; platforms: string[]; engine: number;
 }
 export interface Project extends ProjectSpec {
   cost: number;
@@ -94,4 +104,8 @@ export interface GameState {
   know: Record<string, string[]>;
   /** Combos sujet|genre déjà testés */
   combos: Record<string, string>;
+  /** Recherches acquises */
+  done: Record<string, true>;
+  topics: string[];
+  engines: Engine[];
 }

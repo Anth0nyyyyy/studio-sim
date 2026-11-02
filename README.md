@@ -41,7 +41,7 @@ tests/     tests de simulation
 
 - [x] **Lot 1 – Socle** : terrain, salles, portes, meubles, recrutement, besoins, A*, temps, sauvegarde
 - [x] **Lot 2 – Développement de jeux** : sujet × genre × sous-genre, public, taille, multi-plateformes, 3 phases à curseurs, bugs, polissage, critiques, ventes, fans
-- [ ] **Lot 3 – Moteurs et recherche**
+- [x] **Lot 3 – Moteurs et recherche** : 43 recherches (fonctions de moteur par époque, tailles, portage, bonus de production, sujets), moteurs maison construits en jours, effet sur note et charge de travail, licences
 - [ ] **Lot 4 – Marché** : concurrents, charts, tendances, fans, salons, prix
 - [ ] **Lot 5 – Business** : production physique, digital, contrats, édition, bourse
 - [ ] **Lot 6 – Live** : suites, add-ons, MMO, F2P, patchs

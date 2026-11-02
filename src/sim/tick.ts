@@ -4,6 +4,7 @@ import type { GameState } from '../core/types';
 import { money } from '../core/util';
 import { genCandidate, updateEmployees } from './employees';
 import { weeklySales } from './project';
+import { monthlyLicenses } from './research';
 
 export const LOT_RENT = 3000;
 export const CANDIDATES = 6;
@@ -23,6 +24,7 @@ export function tick(s: GameState, dt: number) {
     const c = monthlyCosts(s);
     s.money -= c;
     log(s, `Salaires et loyer payés : ${money(c)}.`);
+    monthlyLicenses(s);
   }
   const w = weekIndex(s.time);
   if (w > s.lastWeek) {

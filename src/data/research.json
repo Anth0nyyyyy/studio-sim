@@ -1,0 +1,570 @@
+[
+ {
+  "id": "graph0",
+  "name": "Sprites 16 couleurs",
+  "cat": "graph",
+  "group": "Graphismes",
+  "year": 1980,
+  "value": 1,
+  "base": true,
+  "req": [],
+  "rp": 0,
+  "money": 0
+ },
+ {
+  "id": "graph1",
+  "name": "Défilement parallaxe",
+  "cat": "graph",
+  "group": "Graphismes",
+  "year": 1983,
+  "value": 2.5,
+  "base": false,
+  "req": [
+   "graph0"
+  ],
+  "rp": 29,
+  "money": 2000
+ },
+ {
+  "id": "graph2",
+  "name": "Sprites 256 couleurs",
+  "cat": "graph",
+  "group": "Graphismes",
+  "year": 1987,
+  "value": 4,
+  "base": false,
+  "req": [
+   "graph1"
+  ],
+  "rp": 49,
+  "money": 5500
+ },
+ {
+  "id": "graph3",
+  "name": "3D polygonale",
+  "cat": "graph",
+  "group": "Graphismes",
+  "year": 1993,
+  "value": 5.5,
+  "base": false,
+  "req": [
+   "graph2"
+  ],
+  "rp": 72,
+  "money": 12000
+ },
+ {
+  "id": "graph4",
+  "name": "Textures filtrées",
+  "cat": "graph",
+  "group": "Graphismes",
+  "year": 1997,
+  "value": 7,
+  "base": false,
+  "req": [
+   "graph3"
+  ],
+  "rp": 92,
+  "money": 19000
+ },
+ {
+  "id": "graph5",
+  "name": "Shaders programmables",
+  "cat": "graph",
+  "group": "Graphismes",
+  "year": 2002,
+  "value": 8.5,
+  "base": false,
+  "req": [
+   "graph4"
+  ],
+  "rp": 113,
+  "money": 28000
+ },
+ {
+  "id": "graph6",
+  "name": "Éclairage dynamique",
+  "cat": "graph",
+  "group": "Graphismes",
+  "year": 2006,
+  "value": 10,
+  "base": false,
+  "req": [
+   "graph5"
+  ],
+  "rp": 133,
+  "money": 38500
+ },
+ {
+  "id": "graph7",
+  "name": "Rendu HD",
+  "cat": "graph",
+  "group": "Graphismes",
+  "year": 2009,
+  "value": 11.5,
+  "base": false,
+  "req": [
+   "graph6"
+  ],
+  "rp": 152,
+  "money": 48500
+ },
+ {
+  "id": "son0",
+  "name": "Bips mono",
+  "cat": "son",
+  "group": "Son",
+  "year": 1980,
+  "value": 1,
+  "base": true,
+  "req": [],
+  "rp": 0,
+  "money": 0
+ },
+ {
+  "id": "son1",
+  "name": "Synthé FM",
+  "cat": "son",
+  "group": "Son",
+  "year": 1984,
+  "value": 2.5,
+  "base": false,
+  "req": [
+   "son0"
+  ],
+  "rp": 30,
+  "money": 2500
+ },
+ {
+  "id": "son2",
+  "name": "Échantillons numériques",
+  "cat": "son",
+  "group": "Son",
+  "year": 1988,
+  "value": 4,
+  "base": false,
+  "req": [
+   "son1"
+  ],
+  "rp": 50,
+  "money": 6000
+ },
+ {
+  "id": "son3",
+  "name": "Musique qualité CD",
+  "cat": "son",
+  "group": "Son",
+  "year": 1994,
+  "value": 5.5,
+  "base": false,
+  "req": [
+   "son2"
+  ],
+  "rp": 73,
+  "money": 12500
+ },
+ {
+  "id": "son4",
+  "name": "Son 3D",
+  "cat": "son",
+  "group": "Son",
+  "year": 2000,
+  "value": 7,
+  "base": false,
+  "req": [
+   "son3"
+  ],
+  "rp": 96,
+  "money": 21000
+ },
+ {
+  "id": "son5",
+  "name": "Orchestre enregistré",
+  "cat": "son",
+  "group": "Son",
+  "year": 2006,
+  "value": 8.5,
+  "base": false,
+  "req": [
+   "son4"
+  ],
+  "rp": 119,
+  "money": 32000
+ },
+ {
+  "id": "ctrl0",
+  "name": "Clavier",
+  "cat": "ctrl",
+  "group": "Contrôles",
+  "year": 1980,
+  "value": 1,
+  "base": true,
+  "req": [],
+  "rp": 0,
+  "money": 0
+ },
+ {
+  "id": "ctrl1",
+  "name": "Joystick",
+  "cat": "ctrl",
+  "group": "Contrôles",
+  "year": 1981,
+  "value": 2.5,
+  "base": false,
+  "req": [
+   "ctrl0"
+  ],
+  "rp": 26,
+  "money": 1500
+ },
+ {
+  "id": "ctrl2",
+  "name": "Manette",
+  "cat": "ctrl",
+  "group": "Contrôles",
+  "year": 1985,
+  "value": 4,
+  "base": false,
+  "req": [
+   "ctrl1"
+  ],
+  "rp": 46,
+  "money": 5000
+ },
+ {
+  "id": "ctrl3",
+  "name": "Sticks analogiques",
+  "cat": "ctrl",
+  "group": "Contrôles",
+  "year": 1996,
+  "value": 5.5,
+  "base": false,
+  "req": [
+   "ctrl2"
+  ],
+  "rp": 76,
+  "money": 13500
+ },
+ {
+  "id": "ctrl4",
+  "name": "Vibration",
+  "cat": "ctrl",
+  "group": "Contrôles",
+  "year": 1998,
+  "value": 7,
+  "base": false,
+  "req": [
+   "ctrl3"
+  ],
+  "rp": 93,
+  "money": 19500
+ },
+ {
+  "id": "ctrl5",
+  "name": "Détection de mouvement",
+  "cat": "ctrl",
+  "group": "Contrôles",
+  "year": 2006,
+  "value": 8.5,
+  "base": false,
+  "req": [
+   "ctrl4"
+  ],
+  "rp": 119,
+  "money": 32000
+ },
+ {
+  "id": "ctrl6",
+  "name": "Écran tactile",
+  "cat": "ctrl",
+  "group": "Contrôles",
+  "year": 2008,
+  "value": 10,
+  "base": false,
+  "req": [
+   "ctrl5"
+  ],
+  "rp": 136,
+  "money": 40500
+ },
+ {
+  "id": "ia0",
+  "name": "IA scriptée",
+  "cat": "ia",
+  "group": "IA",
+  "year": 1980,
+  "value": 1,
+  "base": true,
+  "req": [],
+  "rp": 0,
+  "money": 0
+ },
+ {
+  "id": "ia1",
+  "name": "Recherche de chemin",
+  "cat": "ia",
+  "group": "IA",
+  "year": 1986,
+  "value": 2.5,
+  "base": false,
+  "req": [
+   "ia0"
+  ],
+  "rp": 33,
+  "money": 2500
+ },
+ {
+  "id": "ia2",
+  "name": "Machines à états",
+  "cat": "ia",
+  "group": "IA",
+  "year": 1991,
+  "value": 4,
+  "base": false,
+  "req": [
+   "ia1"
+  ],
+  "rp": 55,
+  "money": 7000
+ },
+ {
+  "id": "ia3",
+  "name": "IA tactique",
+  "cat": "ia",
+  "group": "IA",
+  "year": 1998,
+  "value": 5.5,
+  "base": false,
+  "req": [
+   "ia2"
+  ],
+  "rp": 79,
+  "money": 14500
+ },
+ {
+  "id": "ia4",
+  "name": "IA adaptative",
+  "cat": "ia",
+  "group": "IA",
+  "year": 2005,
+  "value": 7,
+  "base": false,
+  "req": [
+   "ia3"
+  ],
+  "rp": 104,
+  "money": 25000
+ },
+ {
+  "id": "phys0",
+  "name": "Collisions simples",
+  "cat": "phys",
+  "group": "Physique",
+  "year": 1980,
+  "value": 1,
+  "base": true,
+  "req": [],
+  "rp": 0,
+  "money": 0
+ },
+ {
+  "id": "phys1",
+  "name": "Gravité",
+  "cat": "phys",
+  "group": "Physique",
+  "year": 1989,
+  "value": 2.5,
+  "base": false,
+  "req": [
+   "phys0"
+  ],
+  "rp": 38,
+  "money": 3000
+ },
+ {
+  "id": "phys2",
+  "name": "Corps rigides",
+  "cat": "phys",
+  "group": "Physique",
+  "year": 2000,
+  "value": 4,
+  "base": false,
+  "req": [
+   "phys1"
+  ],
+  "rp": 68,
+  "money": 10500
+ },
+ {
+  "id": "phys3",
+  "name": "Destruction",
+  "cat": "phys",
+  "group": "Physique",
+  "year": 2007,
+  "value": 5.5,
+  "base": false,
+  "req": [
+   "phys2"
+  ],
+  "rp": 93,
+  "money": 19500
+ },
+ {
+  "id": "sizeM",
+  "name": "Production moyenne",
+  "group": "Production",
+  "year": 1980,
+  "rp": 25,
+  "money": 20000,
+  "req": [],
+  "desc": "Débloque les jeux de taille Moyen."
+ },
+ {
+  "id": "sizeL",
+  "name": "Grande production",
+  "group": "Production",
+  "year": 1990,
+  "rp": 80,
+  "money": 120000,
+  "req": [
+   "sizeM"
+  ],
+  "desc": "Débloque les jeux de taille Grand."
+ },
+ {
+  "id": "port",
+  "name": "Portage",
+  "group": "Production",
+  "year": 1984,
+  "rp": 30,
+  "money": 15000,
+  "req": [],
+  "desc": "Sortir un jeu sur 2 plateformes."
+ },
+ {
+  "id": "multi",
+  "name": "Multi-plateforme",
+  "group": "Production",
+  "year": 1992,
+  "rp": 60,
+  "money": 50000,
+  "req": [
+   "port"
+  ],
+  "desc": "Sortir un jeu sur 3 plateformes."
+ },
+ {
+  "id": "agile",
+  "name": "Méthodes agiles",
+  "group": "Production",
+  "year": 1995,
+  "rp": 70,
+  "money": 60000,
+  "req": [
+   "sizeM"
+  ],
+  "desc": "Les devs génèrent 25 % de bugs en moins."
+ },
+ {
+  "id": "qatools",
+  "name": "Outils de test",
+  "group": "Production",
+  "year": 1988,
+  "rp": 35,
+  "money": 25000,
+  "req": [],
+  "desc": "Les testeurs corrigent 30 % de bugs en plus."
+ },
+ {
+  "id": "pipeline",
+  "name": "Pipeline d’assets",
+  "group": "Production",
+  "year": 1991,
+  "rp": 45,
+  "money": 40000,
+  "req": [],
+  "desc": "Studios graphique et son : +20 % de production."
+ },
+ {
+  "id": "massmkt",
+  "name": "Marketing de masse",
+  "group": "Production",
+  "year": 1993,
+  "rp": 40,
+  "money": 50000,
+  "req": [],
+  "desc": "Le marketing génère 30 % de hype en plus."
+ },
+ {
+  "id": "ergo",
+  "name": "Ergonomie du bureau",
+  "group": "Studio",
+  "year": 1985,
+  "rp": 20,
+  "money": 15000,
+  "req": [],
+  "desc": "Motivation de l’équipe +8."
+ },
+ {
+  "id": "enginelic",
+  "name": "Licences de moteur",
+  "group": "Studio",
+  "year": 1987,
+  "rp": 40,
+  "money": 30000,
+  "req": [],
+  "desc": "Permet de louer vos moteurs à d’autres studios."
+ },
+ {
+  "id": "topics1",
+  "name": "Sujets : pack 1",
+  "group": "Sujets",
+  "year": 1981,
+  "rp": 15,
+  "money": 5000,
+  "req": [],
+  "desc": "Zombies, Espionnage, Horreur, Ninja.",
+  "topics": [
+   "Zombies",
+   "Espionnage",
+   "Horreur",
+   "Ninja"
+  ]
+ },
+ {
+  "id": "topics2",
+  "name": "Sujets : pack 2",
+  "group": "Sujets",
+  "year": 1986,
+  "rp": 30,
+  "money": 15000,
+  "req": [
+   "topics1"
+  ],
+  "desc": "Détective, Musique, Cuisine, Super-héros.",
+  "topics": [
+   "Détective",
+   "Musique",
+   "Cuisine",
+   "Super-héros"
+  ]
+ },
+ {
+  "id": "topics3",
+  "name": "Sujets : pack 3",
+  "group": "Sujets",
+  "year": 1994,
+  "rp": 60,
+  "money": 40000,
+  "req": [
+   "topics2"
+  ],
+  "desc": "Post-apo, Cyberpunk, Militaire, Mythologie.",
+  "topics": [
+   "Post-apo",
+   "Cyberpunk",
+   "Militaire",
+   "Mythologie"
+  ]
+ }
+]

@@ -7,6 +7,7 @@ import { roomBoost, roomComfort } from './build';
 import { canStep, roomAt, seatsOf } from './grid';
 import { findPath } from './pathfinding';
 import { produce } from './project';
+import { motivationBonus } from './research';
 
 const SPEED = 3; // tuiles par seconde simulée
 const RATE = {
@@ -191,7 +192,7 @@ export function updateEmployees(s: GameState, dt: number) {
     e.fatigue = clamp(e.fatigue + (e.state === 'working' ? RATE.fatigueWork : RATE.fatigueIdle) * dt, 0, 100);
 
     const room = s.rooms.find(r => r.id === e.room);
-    let target = 50 + (room ? roomComfort(s, room) : 0) * 0.8;
+    let target = 50 + motivationBonus(s) + (room ? roomComfort(s, room) : 0) * 0.8;
     if (e.desk === null) target -= 12;
     for (const k of ['hunger', 'bladder', 'fatigue'] as const) if (e[k] > 90) target -= 15;
     e.motivation = clamp(e.motivation + (target - e.motivation) * Math.min(1, dt * 0.05), 0, 100);

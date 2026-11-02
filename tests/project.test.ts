@@ -6,7 +6,7 @@ import { comboOf, evaluate, release, setSliders, startProject, validateSpec } fr
 import { tick } from '../src/sim/tick';
 
 const spec = (o: Partial<ProjectSpec> = {}): ProjectSpec => ({
-  name: 'Test Quest', topic: 'Médiéval', genre: 'RPG', sub: null, audience: 'all', size: 'S', platforms: ['pc'], ...o,
+  name: 'Test Quest', topic: 'Médiéval', genre: 'RPG', sub: null, audience: 'all', size: 'S', platforms: ['pc'], engine: 1, ...o,
 });
 
 let slidersAsked = 0;
@@ -16,7 +16,8 @@ describe('projet de jeu', () => {
   it('valide la fiche', () => {
     const s = newGame();
     expect(validateSpec(s, spec({ name: ' ' }))).toMatch(/titre/);
-    expect(validateSpec(s, spec({ size: 'M' }))).toMatch(/employés/);
+    expect(validateSpec(s, spec({ size: 'M' }))).toMatch(/recherche/);
+    expect(validateSpec(s, spec({ topic: 'Horreur' }))).toMatch(/débloqué/);
     expect(validateSpec(s, spec({ platforms: ['orbit'] }))).toMatch(/indisponible/);
     expect(validateSpec(s, spec())).toBeNull();
   });

@@ -4,11 +4,13 @@ import { log } from '../core/log';
 import { START_YEAR, monthIndex } from '../core/time';
 import type { Employee, Game, GameState, Project, ProjectSpec } from '../core/types';
 import { clamp, money, rnd } from '../core/util';
+import {
+  assetMult, bugMult, engineQualityMult, engineRatio, engineReady, engineWorkload, hypeMult, maxPlatforms, qaMult, sizeUnlocked,
+} from './research';
 
 export const COMBO_MULT: Record<string, number> = { '*': 1.25, '+': 1.1, '0': 1, '-': 0.82, x: 0.62 };
 export const COMBO_LABEL: Record<string, string> = { '*': 'Combo parfait', '+': 'Bon combo', '0': 'Neutre', '-': 'Mauvais combo', x: 'Combo absurde' };
 const AUD_MULT: Record<string, number> = { '+': 1.08, '0': 1, '-': 0.8 };
-export const MAX_PLATFORMS = 3;
 const BUG_RATE = 0.12;
 
 export const year = (s: GameState) => START_YEAR + Math.floor(monthIndex(s.time) / 12);
@@ -37,8 +39,9 @@ export function idealWeights(genre: string, sub: string | null, phase: number): 
 export function projectCost(spec: Pick<ProjectSpec, 'size' | 'platforms'>): number {
   return SIZES[spec.size].cost + spec.platforms.reduce((a, id) => a + PLATFORM[id].license, 0);
 }
-export function phaseTarget(spec: Pick<ProjectSpec, 'size' | 'platforms'>): number {
-  return SIZES[spec.size].target * (1 + 0.25 * (spec.platforms.length - 1));
+export function phaseTarget(s: GameState, spec: Pick<ProjectSpec, 'size' | 'platforms' | 'engine'>): number {
+  const e = s.engines.find(o => o.id === spec.engine);
+  return SIZES[spec.size].target * (1 + 0.25 * (spec.platforms.length - 1)) * (e ? engineWorkload(e) : 1);
 }
 
 export function validateSpec(s: GameState, spec: ProjectSpec): string | null {
@@ -47,7 +50,12 @@ export function validateSpec(s: GameState, spec: ProjectSpec): string | null {
   if (!TOPIC[spec.topic]) return 'Choisissez un sujet';
   if (!GENRE[spec.genre]) return 'Choisissez un genre';
   if (!spec.platforms.length) return 'Choisissez au moins une plateforme';
-  if (spec.platforms.length > MAX_PLATFORMS) return `${MAX_PLATFORMS} plateformes maximum`;
+  if (spec.platforms.length > maxPlatforms(s)) return maxPlatforms(s) === 1 ? 'Recherchez « Portage » pour viser plusieurs plateformes' : `${maxPlatforms(s)} plateformes maximum`;
+  if (!s.topics.includes(spec.topic)) return 'Sujet non débloqué';
+  if (!sizeUnlocked(s, spec.size)) return 'Taille non débloquée par la recherche';
+  const eng = s.engines.find(o => o.id === spec.engine);
+  if (!eng) return 'Choisissez un moteur';
+  if (!engineReady(s, eng)) return 'Ce moteur est encore en construction';
   const avail = new Set(availablePlatforms(s).map(p => p.id));
   if (spec.platforms.some(p => !avail.has(p))) return 'Plateforme indisponible';
   if (s.employees.length < SIZES[spec.size].minStaff) return `Il faut ${SIZES[spec.size].minStaff} employés pour cette taille`;
@@ -61,7 +69,7 @@ export function startProject(s: GameState, spec: ProjectSpec): string | null {
   const cost = projectCost(spec);
   s.money -= cost;
   s.project = {
-    ...spec, name: spec.name.trim(), cost, phase: 0, progress: 0, target: phaseTarget(spec),
+    ...spec, name: spec.name.trim(), cost, phase: 0, progress: 0, target: phaseTarget(s, spec),
     sliders: [[50, 50, 50], [50, 50, 50], [50, 50, 50]], wait: true,
     areas: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
     design: 0, tech: 0, graph: 0, son: 0, bugs: 0, hype: 0, startedAt: s.time,
@@ -111,7 +119,7 @@ export function produce(s: GameState, e: Employee, roomType: string, factor: num
           if (type === 'D') p.design += v; else p.tech += v;
           total += v;
         });
-        p.bugs += total * BUG_RATE;
+        p.bugs += total * BUG_RATE * bugMult(s);
         p.progress += total;
         pts = total;
         if (p.progress >= p.target) advancePhase(s, p);
@@ -119,16 +127,16 @@ export function produce(s: GameState, e: Employee, roomType: string, factor: num
         p.bugs = Math.max(0, p.bugs - pts * 0.5);
       }
       break;
-    case 'graph': p.graph += pts; break;
-    case 'son': p.son += pts; break;
-    case 'qa': p.bugs = Math.max(0, p.bugs - pts * 1.5); break;
-    case 'hype': p.hype += pts; break;
+    case 'graph': p.graph += pts * assetMult(s); break;
+    case 'son': p.son += pts * assetMult(s); break;
+    case 'qa': p.bugs = Math.max(0, p.bugs - pts * 1.5 * qaMult(s)); break;
+    case 'hype': p.hype += pts * hypeMult(s); break;
   }
   return pts;
 }
 
 export interface Breakdown {
-  content: number; focus: number; balance: number; assets: number;
+  content: number; focus: number; balance: number; assets: number; engine: number;
   combo: string; audience: string; sub: number; repeat: number; bugPenalty: number; quality: number;
 }
 
@@ -151,9 +159,11 @@ export function evaluate(s: GameState, p: Project): Breakdown {
   const repeat = prev && prev.topic === p.topic && prev.genre === p.genre ? 0.8 : prev && prev.genre === p.genre ? 0.95 : 1;
   const bugPenalty = Math.max(0.4, 1 - (p.bugs / dev) * 2);
   const content = dev + assetPts;
-  const quality = content * (0.55 + 0.6 * focus) * (0.8 + 0.35 * balance) * assets *
+  const eng = s.engines.find(o => o.id === p.engine);
+  const engine = eng ? engineRatio(s, eng, p.genre) : 1;
+  const quality = content * (0.55 + 0.6 * focus) * (0.8 + 0.35 * balance) * assets * engineQualityMult(engine) *
     COMBO_MULT[combo] * AUD_MULT[audience] * sub * repeat * bugPenalty;
-  return { content, focus, balance, assets, combo, audience, sub, repeat, bugPenalty, quality };
+  return { content, focus, balance, assets, engine, combo, audience, sub, repeat, bugPenalty, quality };
 }
 
 export const industry = (s: GameState) => 90 * Math.pow(1.08, year(s) - START_YEAR);
@@ -185,7 +195,7 @@ export function release(s: GameState): Game | null {
   if (b.quality > s.best) s.best += (b.quality - s.best) * 0.6;
   const reviews = REVIEWERS.map(() => clamp(Math.round(base + rnd(-1, 1)), 1, 10));
   const score = reviews.reduce((a, c) => a + c, 0) / reviews.length;
-  const spec: ProjectSpec = { name: p.name, topic: p.topic, genre: p.genre, sub: p.sub, audience: p.audience, size: p.size, platforms: p.platforms };
+  const spec: ProjectSpec = { name: p.name, topic: p.topic, genre: p.genre, sub: p.sub, audience: p.audience, size: p.size, platforms: p.platforms, engine: p.engine };
   const game: Game = {
     ...spec, id: s.nextId++, score, reviews, quality: b.quality,
     units: 0, revenue: 0, cost: p.cost, sched: salesSchedule(s, spec, score, p.hype), si: 0, releasedAt: s.time,
@@ -215,6 +225,8 @@ export function release(s: GameState): Game | null {
   if (b.repeat < 1) notes.push('Trop proche de votre jeu précédent.');
   if (b.assets < 0.95) notes.push('Graphismes et son manquent de finition : pensez aux studios graphique et son.');
   if (b.balance < 0.5) notes.push(p.design / (p.design + p.tech) > GENRE[p.genre].design ? 'Créatif, mais techniquement à la traîne pour ce genre.' : 'Solide techniquement, mais manque de créativité pour ce genre.');
+  if (b.engine < 0.8) notes.push('La technologie du moteur paraît datée.');
+  if (b.engine > 1.15) notes.push('Une technologie impressionnante pour l’époque.');
   if (b.focus < 0.55) notes.push('Les priorités de développement semblaient mal choisies.');
 
   log(s, `${game.name} est sorti : ${score.toFixed(1)}/10.`);
