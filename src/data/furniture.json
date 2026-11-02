@@ -1,0 +1,11 @@
+[
+  { "id": "desk", "name": "Poste de travail", "cost": 1200, "rooms": ["dev", "graph", "son", "qa", "rd", "mkt", "hw"], "use": "work" },
+  { "id": "plant", "name": "Plante", "cost": 150, "rooms": ["*"], "comfort": 4 },
+  { "id": "board", "name": "Tableau blanc", "cost": 600, "rooms": ["dev", "graph", "son", "qa", "rd", "mkt", "hw"], "comfort": 2, "boost": 0.05 },
+  { "id": "clim", "name": "Climatiseur", "cost": 2500, "rooms": ["*"], "comfort": 10 },
+  { "id": "coffee", "name": "Machine à café", "cost": 900, "rooms": ["cafe", "repos"], "use": "hunger", "duration": 2 },
+  { "id": "vending", "name": "Distributeur", "cost": 1500, "rooms": ["cafe"], "use": "hunger", "duration": 1.5 },
+  { "id": "toilet", "name": "Toilette", "cost": 800, "rooms": ["wc"], "use": "bladder", "duration": 2 },
+  { "id": "sofa", "name": "Canapé", "cost": 1100, "rooms": ["repos"], "use": "fatigue", "duration": 6 },
+  { "id": "arcade", "name": "Borne d’arcade", "cost": 3000, "rooms": ["repos", "cafe"], "use": "fatigue", "duration": 4, "comfort": 3 }
+]

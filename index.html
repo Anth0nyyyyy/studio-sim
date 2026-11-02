@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Studio Sim</title>
+  <link rel="stylesheet" href="/src/ui/style.css">
+</head>
+<body>
+  <canvas id="view"></canvas>
+
+  <header id="topbar">
+    <div class="brand">Studio Sim</div>
+    <div class="stat"><b id="h-date"></b><span>Date</span></div>
+    <div class="stat"><b id="h-money"></b><span>Trésorerie</span></div>
+    <div class="stat"><b id="h-staff"></b><span>Équipe</span></div>
+    <div class="outputs" id="h-out"></div>
+    <div class="speed" id="speed">
+      <button data-sp="0" title="Pause (Espace)">II</button>
+      <button data-sp="1" title="Vitesse 1 (touche 1)">x1</button>
+      <button data-sp="2" title="Vitesse 2 (touche 2)">x2</button>
+      <button data-sp="4" title="Vitesse 4 (touche 3)">x4</button>
+    </div>
+    <div class="menu">
+      <button id="b-hire" class="primary">Recruter</button>
+      <button id="b-save">Sauver</button>
+      <button id="b-export">Exporter</button>
+      <label class="btnlike">Importer<input type="file" id="f-import" accept="application/json" hidden></label>
+      <button id="b-new">Nouvelle partie</button>
+    </div>
+  </header>
+
+  <nav id="tools">
+    <button data-tool="select" title="Sélection (Échap)">Sélection</button>
+    <button data-tool="room" title="Construire une salle (R)">Salles</button>
+    <button data-tool="furn" title="Placer un meuble (F)">Meubles</button>
+    <button data-tool="door" title="Ajouter ou retirer une porte (D)">Portes</button>
+    <button data-tool="demolish" title="Démolir (X)">Démolir</button>
+    <div id="palette"></div>
+  </nav>
+
+  <aside id="panel"></aside>
+  <div id="toasts" aria-live="polite"></div>
+  <div id="modal"></div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
