@@ -6,13 +6,14 @@ import { clamp, pick, rnd, rint } from '../core/util';
 import { roomBoost, roomComfort } from './build';
 import { canStep, roomAt, seatsOf } from './grid';
 import { findPath } from './pathfinding';
+import { produce } from './project';
 
 const SPEED = 3; // tuiles par seconde simulée
 const RATE = {
-  hunger: 22 / DAY_SEC,
-  bladder: 28 / DAY_SEC,
-  fatigueWork: 20 / DAY_SEC,
-  fatigueIdle: 5 / DAY_SEC,
+  hunger: 8 / DAY_SEC,
+  bladder: 10 / DAY_SEC,
+  fatigueWork: 12 / DAY_SEC,
+  fatigueIdle: 3 / DAY_SEC,
 };
 const THRESHOLD: Record<NeedKind, number> = { bladder: 75, hunger: 75, fatigue: 80 };
 export const HIRE_FEE_RATIO = 0.5;
@@ -206,10 +207,8 @@ export function updateEmployees(s: GameState, dt: number) {
         if (canFix || e.desk === null) { e.state = 'idle'; e.goal = null; break; }
         e.missing = need;
         const r = room!;
-        const eff = (roomSkill(e, r.type) / 100) * (0.4 + e.motivation / 125) * (1 - e.fatigue / 250) * (1 + roomBoost(s, r.id));
-        e.rate = eff;
-        const out = ROOMS[r.type].out!;
-        s.output[out] = (s.output[out] ?? 0) + eff * dt;
+        const factor = (0.4 + e.motivation / 125) * (1 - e.fatigue / 250) * (1 + roomBoost(s, r.id));
+        e.rate = dt > 0 ? produce(s, e, r.type, factor, dt) / dt : 0;
         break;
       }
       case 'using': {

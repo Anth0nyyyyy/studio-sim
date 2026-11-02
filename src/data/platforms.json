@@ -1,0 +1,13 @@
+[
+  { "id": "pc", "name": "PC", "from": 1980, "to": 2200, "market": 1.0, "license": 0, "likes": ["Stratégie", "Simulation"], "dislikes": ["Casual"] },
+  { "id": "kob8", "name": "Kobalt 8", "from": 1980, "to": 1991, "market": 0.8, "license": 0, "likes": ["Aventure"], "dislikes": [] },
+  { "id": "nexa", "name": "Nexa", "from": 1983, "to": 1994, "market": 1.4, "license": 20000, "likes": ["Action", "Casual"], "dislikes": ["Stratégie", "Simulation"] },
+  { "id": "vortex", "name": "Vortex 16", "from": 1988, "to": 1997, "market": 1.1, "license": 30000, "likes": ["Action"], "dislikes": ["Simulation"] },
+  { "id": "pocket", "name": "Pocketeer", "from": 1989, "to": 2001, "market": 1.2, "license": 25000, "likes": ["Casual", "RPG"], "dislikes": ["Simulation"] },
+  { "id": "nexas", "name": "Nexa Super", "from": 1991, "to": 2000, "market": 1.7, "license": 40000, "likes": ["RPG", "Action"], "dislikes": ["Simulation"] },
+  { "id": "orbit", "name": "Orbit", "from": 1995, "to": 2006, "market": 2.4, "license": 70000, "likes": ["Action", "RPG"], "dislikes": [] },
+  { "id": "orbit2", "name": "Orbit 2", "from": 2000, "to": 2013, "market": 3.3, "license": 110000, "likes": ["Action", "Aventure"], "dislikes": [] },
+  { "id": "helix", "name": "Helix", "from": 2002, "to": 2013, "market": 2.2, "license": 90000, "likes": ["Action", "Stratégie"], "dislikes": ["Casual"] },
+  { "id": "swing", "name": "Swing", "from": 2006, "to": 2014, "market": 3.0, "license": 120000, "likes": ["Casual"], "dislikes": ["Stratégie", "RPG"] },
+  { "id": "mobile", "name": "Mobile", "from": 2008, "to": 2200, "market": 2.8, "license": 15000, "likes": ["Casual", "Stratégie"], "dislikes": ["Simulation"] }
+]

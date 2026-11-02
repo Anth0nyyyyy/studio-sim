@@ -58,6 +58,9 @@ export function updateTopbar(s: GameState, ui: UIState) {
   m.textContent = money(s.money);
   m.style.color = s.money < 0 ? 'var(--bad)' : '';
   $('h-staff').textContent = String(s.employees.length);
+  $('h-fans').textContent = Math.floor(s.fans).toLocaleString('fr-FR');
+  $('h-rp').textContent = `${Math.floor(s.rp)} RP`;
+  ($('b-game') as HTMLButtonElement).disabled = !!s.project;
   $('h-out').innerHTML = Object.entries(OUTPUT_LABEL)
     .filter(([k]) => (s.output[k] ?? 0) > 0)
     .map(([k, l]) => `<span title="Points produits">${l} ${Math.floor(s.output[k])}</span>`).join('');

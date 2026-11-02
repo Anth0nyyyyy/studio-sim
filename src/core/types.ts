@@ -37,6 +37,34 @@ export interface Employee {
 
 export interface LogEntry { t: string; m: string }
 
+export type SizeId = 'S' | 'M' | 'L';
+export type AreaType = 'D' | 'T';
+export interface GenreDef { id: string; color: string; design: number; graph: number; son: number; w: number[][] }
+export interface TopicDef { name: string; combo: string; aud: string }
+export interface PlatformDef { id: string; name: string; from: number; to: number; market: number; license: number; likes: string[]; dislikes: string[] }
+export interface SizeDef { name: string; target: number; cost: number; units: number; price: number; minStaff: number; weeks: number }
+export interface AudienceDef { id: string; name: string; market: number }
+
+export interface ProjectSpec {
+  name: string; topic: string; genre: string; sub: string | null;
+  audience: string; size: SizeId; platforms: string[];
+}
+export interface Project extends ProjectSpec {
+  cost: number;
+  /** 0..2 = phases de contenu, 3 = polissage */
+  phase: number;
+  progress: number; target: number;
+  sliders: number[][]; wait: boolean;
+  areas: number[][];
+  design: number; tech: number; graph: number; son: number; bugs: number; hype: number;
+  startedAt: number;
+}
+export interface Game extends ProjectSpec {
+  id: number; score: number; reviews: number[]; quality: number;
+  units: number; revenue: number; cost: number;
+  sched: number[]; si: number; releasedAt: number;
+}
+
 export interface GameState {
   version: number;
   W: number; H: number;
@@ -56,4 +84,14 @@ export interface GameState {
   log: LogEntry[];
   lastMonth: number;
   lastWeek: number;
+  project: Project | null;
+  games: Game[];
+  fans: number;
+  rp: number;
+  /** Meilleure qualité atteinte (référence des critiques) */
+  best: number;
+  /** Importance des domaines découverte, par genre : "phase-area" */
+  know: Record<string, string[]>;
+  /** Combos sujet|genre déjà testés */
+  combos: Record<string, string>;
 }

@@ -14,6 +14,8 @@
     <div class="stat"><b id="h-date"></b><span>Date</span></div>
     <div class="stat"><b id="h-money"></b><span>Trésorerie</span></div>
     <div class="stat"><b id="h-staff"></b><span>Équipe</span></div>
+    <div class="stat"><b id="h-fans"></b><span>Fans</span></div>
+    <div class="stat"><b id="h-rp"></b><span>Recherche</span></div>
     <div class="outputs" id="h-out"></div>
     <div class="speed" id="speed">
       <button data-sp="0" title="Pause (Espace)">II</button>
@@ -22,7 +24,9 @@
       <button data-sp="4" title="Vitesse 4 (touche 3)">x4</button>
     </div>
     <div class="menu">
-      <button id="b-hire" class="primary">Recruter</button>
+      <button id="b-game" class="primary">Nouveau jeu</button>
+      <button id="b-games">Jeux</button>
+      <button id="b-hire">Recruter</button>
       <button id="b-save">Sauver</button>
       <button id="b-export">Exporter</button>
       <label class="btnlike">Importer<input type="file" id="f-import" accept="application/json" hidden></label>
@@ -40,6 +44,7 @@
   </nav>
 
   <aside id="panel"></aside>
+  <section id="project" hidden></section>
   <div id="toasts" aria-live="polite"></div>
   <div id="modal"></div>
 

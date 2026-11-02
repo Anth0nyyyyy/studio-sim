@@ -6,7 +6,16 @@ import { log } from './log';
 import type { GameState } from './types';
 
 export const SAVE_KEY = 'studio-sim-save';
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
+
+/** Met à niveau une sauvegarde ancienne. */
+function migrate(s: GameState): GameState {
+  if (s.version === 1) {
+    s.project = null; s.games = []; s.fans = 0; s.rp = 0; s.best = 0; s.know = {}; s.combos = {};
+    s.version = 2;
+  }
+  return s;
+}
 
 export function emptyState(W = 48, H = 34): GameState {
   const lot = { x0: 2, y0: 2, x1: W - 3, y1: H - 3 };
@@ -19,6 +28,7 @@ export function emptyState(W = 48, H = 34): GameState {
     entrance: [Math.floor((lot.x0 + lot.x1) / 2), lot.y1],
     roomMap, rooms: [], furniture: [], doors: [], employees: [], candidates: [],
     money: 0, time: 0, nextId: 1, output: {}, log: [], lastMonth: 0, lastWeek: 0,
+    project: null, games: [], fans: 0, rp: 0, best: 0, know: {}, combos: {},
   };
 }
 
@@ -39,7 +49,7 @@ export function newGame(): GameState {
   placeFurniture(s, 'plant', cafe.x, cafe.y, true);
   for (let i = 0; i < CANDIDATES; i++) s.candidates.push(genCandidate(s));
   const devs = s.candidates.filter(c => c.spec === 'design' || c.spec === 'prog');
-  for (const c of [...devs, ...s.candidates].slice(0, 2)) hire(s, c.id, true);
+  for (const c of [...new Set([...devs, ...s.candidates])].slice(0, 2)) hire(s, c.id, true);
   while (s.candidates.length < CANDIDATES) s.candidates.push(genCandidate(s));
   s.money = 120000;
   s.log = [];
@@ -53,7 +63,7 @@ export function saveLocal(s: GameState): boolean {
 
 export function parseSave(raw: string): GameState | null {
   try {
-    const s = JSON.parse(raw) as GameState;
+    const s = migrate(JSON.parse(raw) as GameState);
     if (s.version !== SAVE_VERSION || !Array.isArray(s.roomMap)) return null;
     invalidate();
     return s;

@@ -1,0 +1,22 @@
+{
+  "phases": [
+    { "name": "Conception", "areas": [["Moteur", "T"], ["Gameplay", "D"], ["Scénario", "D"]] },
+    { "name": "Production", "areas": [["Niveaux", "D"], ["IA", "T"], ["Dialogues", "D"]] },
+    { "name": "Finitions", "areas": [["Monde", "D"], ["Interface", "D"], ["Optimisation", "T"]] }
+  ],
+  "sizes": {
+    "S": { "name": "Petit", "target": 30, "cost": 10000, "units": 1, "price": 8, "minStaff": 1, "weeks": 12 },
+    "M": { "name": "Moyen", "target": 100, "cost": 50000, "units": 2.4, "price": 14, "minStaff": 4, "weeks": 16 },
+    "L": { "name": "Grand", "target": 300, "cost": 200000, "units": 5, "price": 22, "minStaff": 10, "weeks": 20 }
+  },
+  "audiences": [
+    { "id": "kids", "name": "Enfants", "market": 0.7 },
+    { "id": "all", "name": "Tout public", "market": 1.0 },
+    { "id": "teen", "name": "Ados", "market": 0.9 },
+    { "id": "adult", "name": "Adultes", "market": 0.8 }
+  ],
+  "subGood": [["Action", "Aventure"], ["Action", "RPG"], ["RPG", "Aventure"], ["Stratégie", "Simulation"], ["RPG", "Stratégie"], ["Casual", "Simulation"]],
+  "subBad": [["Casual", "RPG"], ["Casual", "Stratégie"], ["Simulation", "Aventure"]],
+  "reviewers": ["Pixel Hebdo", "Manette d’Or", "Score!", "Le Cartouche"],
+  "verdicts": ["", "Un désastre.", "Raté.", "Très décevant.", "Médiocre.", "Passable.", "Correct.", "Plutôt bon.", "Excellent.", "Remarquable.", "Chef-d’œuvre."]
+}

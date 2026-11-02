@@ -9,6 +9,8 @@ import { edgeFromPointer, normRect, placeFurniture, toggleDoor, validateFurnitur
 import { furnAt, roomAt } from './sim/grid';
 import { tick } from './sim/tick';
 import { bindPanel, openHire, renderPanel, renderTools, toast, updateTopbar, type Tool, type UIState } from './ui/ui';
+import { on } from './core/events';
+import { openGames, openReview, openSliders, openWizard, renderProjectCard } from './ui/game-ui';
 
 let s: GameState = loadLocal() ?? newGame();
 const ui: UIState = { tool: 'select', roomType: 'dev', furnType: 'desk', selected: null, speed: 1 };
@@ -55,6 +57,14 @@ document.getElementById('speed')!.addEventListener('click', ev => {
   if (b) { ui.speed = +b.dataset.sp!; updateTopbar(s, ui); }
 });
 document.getElementById('b-hire')!.onclick = () => openHire(s, refresh);
+const showSliders = () => openSliders(s, refresh);
+document.getElementById('b-game')!.onclick = () => {
+  if (s.project) { toast('Un jeu est déjà en développement.', true); return; }
+  openWizard(s, refresh);
+};
+document.getElementById('b-games')!.onclick = () => openGames(s);
+on('sliders', () => { refresh(); showSliders(); });
+on('released', ({ game, notes, insight }) => { refresh(); openReview(game, notes, insight); saveLocal(s); });
 document.getElementById('b-save')!.onclick = () => {
   const ok = saveLocal(s);
   toast(ok ? 'Partie sauvegardée.' : 'Sauvegarde impossible dans ce navigateur.', !ok);
@@ -225,8 +235,9 @@ function frame(now: number) {
   draw(ctx, s, cam, vw, vh, dpr, ov, now);
 
   uiTimer += dt;
-  if (uiTimer > 0.25) { uiTimer = 0; updateTopbar(s, ui); renderPanel(s, ui); }
+  if (uiTimer > 0.25) { uiTimer = 0; updateTopbar(s, ui); renderPanel(s, ui); renderProjectCard(s, showSliders); }
   requestAnimationFrame(frame);
 }
 refresh();
+if (s.project?.wait) showSliders();
 requestAnimationFrame(frame);
